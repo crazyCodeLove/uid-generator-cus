@@ -4,9 +4,8 @@
     <resultMap id="workerNodeRes"
                type="com.sse.model.WorkNodeEntity">
         <id column="ID" jdbcType="BIGINT" property="id" />
-        <result column="HOST_NAME" jdbcType="VARCHAR" property="hostName" />
+        <result column="IP" jdbcType="VARCHAR" property="ip" />
         <result column="PORT" jdbcType="VARCHAR" property="port" />
-        <result column="TYPE" jdbcType="INTEGER" property="type" />
         <result column="LAUNCH_DATE" jdbcType="DATE" property="launchDate" />
         <result column="MODIFIED" jdbcType="TIMESTAMP" property="modified" />
         <result column="CREATED" jdbcType="TIMESTAMP" property="created" />
@@ -15,16 +14,14 @@
     <insert id="addWorkerNode" useGeneratedKeys="true" keyProperty="id"
             parameterType="com.sse.model.WorkNodeEntity">
 		INSERT INTO WORKER_NODE
-		(HOST_NAME,
+		(IP,
 		PORT,
-		TYPE,
 		LAUNCH_DATE,
 		MODIFIED,
 		CREATED)
 		VALUES (
 		#{hostName},
 		#{port},
-		#{type},
 		#{launchDate},
 		NOW(),
 		NOW())
@@ -33,16 +30,15 @@
     <select id="getWorkerNodeByHostPort" resultMap="workerNodeRes">
 		SELECT
 		ID,
-		HOST_NAME,
+		IP,
 		PORT,
-		TYPE,
 		LAUNCH_DATE,
 		MODIFIED,
 		CREATED
 		FROM
 		WORKER_NODE
 		WHERE
-		HOST_NAME = #{host} AND PORT = #{port}
+		IP = #{ip} AND PORT = #{port}
 	</select>
 
 </mapper>

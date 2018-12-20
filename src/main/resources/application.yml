@@ -18,3 +18,15 @@ spring:
 
 mybatis:
   mapper-locations: classpath*:mapper/*.xml
+
+uid:
+  generate:
+    timestampBits: 41
+    workerIdBits: 5
+    sequenceBits: 17
+
+  server-node:
+    node-id: 0
+
+
+

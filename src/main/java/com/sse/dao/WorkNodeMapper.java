@@ -13,7 +13,7 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface WorkNodeMapper {
 
-    WorkNodeEntity getWorkerNodeByHostPort(@Param("host") String host, @Param("port") String port);
+    WorkNodeEntity getWorkerNodeByHostPort(@Param("ip") String ip, @Param("port") String port);
 
     void addWorkerNode(WorkNodeEntity workerNodeEntity);
 

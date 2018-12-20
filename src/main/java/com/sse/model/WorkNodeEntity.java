@@ -25,17 +25,12 @@ public class WorkNodeEntity {
     /**
      * Type of CONTAINER: HostName, ACTUAL : IP.
      */
-    private String hostName;
+    private String ip;
 
     /**
      * Type of CONTAINER: Port, ACTUAL : Timestamp + Random(0-10000)
      */
     private String port;
-
-    /**
-     * type of {@link WorkerNodeType}
-     */
-    private int type;
 
     /**
      * Worker launch date, default now
