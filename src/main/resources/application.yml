@@ -6,7 +6,7 @@ spring:
     name: uid-generator
   datasource:
     hikari:
-      jdbc-url: jdbc:mysql://127.0.0.1:3306/snowflake
+      jdbc-url: jdbc:mysql://127.0.0.1:3306/snowflakecus
       username: root
       password: root123
       minimum-idle: 3
@@ -22,11 +22,12 @@ mybatis:
 uid:
   generate:
     timestampBits: 41
-    workerIdBits: 5
+    workIdBits: 5
     sequenceBits: 17
+    epochStr: 2018-12-21
 
-  server-node:
-    node-id: 0
+  workNode:
+    nodeId: 0
 
 
 

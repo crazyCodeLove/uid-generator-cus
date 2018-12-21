@@ -19,4 +19,8 @@ public class UidGenerateException extends RTException {
     public UidGenerateException(String message, Throwable cause) {
         super(message, cause);
     }
+
+    public UidGenerateException(Throwable cause) {
+        super(cause);
+    }
 }

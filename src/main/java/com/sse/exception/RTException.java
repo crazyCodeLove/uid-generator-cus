@@ -18,4 +18,8 @@ public class RTException extends RuntimeException {
     public RTException(String message, Throwable cause) {
         super(message, cause);
     }
+
+    public RTException(Throwable cause) {
+        super(cause);
+    }
 }

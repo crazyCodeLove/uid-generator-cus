@@ -20,7 +20,7 @@ public class WorkNodeEntity {
     /**
      * Entity unique id (table unique)
      */
-    private long id;
+    private Long id;
 
     /**
      * Type of CONTAINER: HostName, ACTUAL : IP.
@@ -33,17 +33,22 @@ public class WorkNodeEntity {
     private String port;
 
     /**
+     * worke node id, unique
+     */
+    private Integer workNodeId;
+
+    /**
      * Worker launch date, default now
      */
     private Date launchDate = new Date();
 
     /**
-     * Created time
+     * server status, on or off
      */
-    private Date created;
+    private String status;
 
     /**
-     * Last modified
+     * Last access time
      */
-    private Date modified;
+    private Date lastUpdateTime;
 }

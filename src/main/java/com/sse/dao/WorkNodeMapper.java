@@ -4,6 +4,8 @@ import com.sse.model.WorkNodeEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 /**
  * @author pczhao
  * @email
@@ -12,9 +14,17 @@ import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface WorkNodeMapper {
+    void addWorkNode(WorkNodeEntity workerNodeEntity);
 
-    WorkNodeEntity getWorkerNodeByHostPort(@Param("ip") String ip, @Param("port") String port);
+    void deleteWorkNode(long id);
 
-    void addWorkerNode(WorkNodeEntity workerNodeEntity);
+    void updateWorkNode(long workNodeId);
+
+    /** 根据 id 获取 WorkNode */
+    WorkNodeEntity getWorkNode(@Param("id") long id);
+
+    List<Integer> getAllWorkNodeId();
+
+
 
 }

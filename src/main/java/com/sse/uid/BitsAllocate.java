@@ -1,6 +1,5 @@
 package com.sse.uid;
 
-import lombok.Builder;
 import lombok.Data;
 import org.springframework.util.Assert;
 
@@ -23,14 +22,14 @@ public class BitsAllocate {
      */
     private int signBits = 1;
     private int timestampBits;
-    private int workerIdBits;
+    private int workIdBits;
     private int sequenceBits;
 
     /**
      * Max value for workId & sequence
      */
     private long maxDeltaMilliSeconds;
-    private long maxWorkerId;
+    private long maxWorkId;
     private long maxSequence;
 
     /**
@@ -40,26 +39,26 @@ public class BitsAllocate {
     private int workerIdShift;
 
     /**
-     * Constructor with timestampBits, workerIdBits, sequenceBits<br>
-     * The highest bit used for sign, so <code>63</code> bits for timestampBits, workerIdBits, sequenceBits
+     * Constructor with timestampBits, workIdBits, sequenceBits<br>
+     * The highest bit used for sign, so <code>63</code> bits for timestampBits, workIdBits, sequenceBits
      */
-    public BitsAllocate(int timestampBits, int workerIdBits, int sequenceBits) {
+    public BitsAllocate(int timestampBits, int workIdBits, int sequenceBits) {
         // make sure allocated 64 bits
-        int allocateTotalBits = signBits + timestampBits + workerIdBits + sequenceBits;
+        int allocateTotalBits = signBits + timestampBits + workIdBits + sequenceBits;
         Assert.isTrue(allocateTotalBits == TOTAL_BITS, "allocate not enough 64 bits");
 
         // initialize bits
         this.timestampBits = timestampBits;
-        this.workerIdBits = workerIdBits;
+        this.workIdBits = workIdBits;
         this.sequenceBits = sequenceBits;
 
         // initialize max value
         this.maxDeltaMilliSeconds = ~(-1L << timestampBits);
-        this.maxWorkerId = ~(-1L << workerIdBits);
+        this.maxWorkId = ~(-1L << workIdBits);
         this.maxSequence = ~(-1L << sequenceBits);
 
         // initialize shift
-        this.timestampShift = workerIdBits + sequenceBits;
+        this.timestampShift = workIdBits + sequenceBits;
         this.workerIdShift = sequenceBits;
     }
 

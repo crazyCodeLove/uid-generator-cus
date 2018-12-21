@@ -9,6 +9,6 @@ package com.sse.uid;
 public interface WorkNodeAssigner {
 
     /** 获取服务所在节点的ID */
-    long getWorkNodeId();
+    int getWorkNodeId();
 
 }
