@@ -1,6 +1,6 @@
 package com.sse.service;
 
-import com.sse.exception.UidGenerateException;
+import com.sse.exception.RTException;
 import com.sse.uid.UidGenerator;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +15,7 @@ public class DefaultUidGenService implements UidGenerator {
 
 
     @Override
-    public long getUID() throws UidGenerateException {
+    public long getUID() throws RTException {
         return 0;
     }
 

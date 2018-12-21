@@ -1,12 +1,13 @@
 package com.sse.exception;
 
 /**
- * @author ZHAOPENGCHENG
+ * 生成 uid 异常
+ * @author pczhao
  * @email
- * @date 2018-12-20 20:52
+ * @date 2018-12-21 8:43
  */
 
-public class UidGenerateException extends RuntimeException {
+public class UidGenerateException extends RTException {
     public UidGenerateException() {
         super();
     }

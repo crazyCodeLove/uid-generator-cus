@@ -1,8 +1,6 @@
 package com.sse.uid;
 
-import com.sse.exception.UidGenerateException;
-
-import java.util.List;
+import com.sse.exception.RTException;
 
 /**
  * @author ZHAOPENGCHENG
@@ -16,16 +14,16 @@ public interface UidGenerator {
      * Get a unique ID
      *
      * @return UID
-     * @throws UidGenerateException
+     * @throws RTException
      */
-    long getUID() throws UidGenerateException;
+    long getUID() throws RTException;
 
     /**
      * get batch Uids
      * @param batchNumber
      * @return
      */
-    long[] getUidBatch(int batchNumber) throws UidGenerateException;
+    long[] getUidBatch(int batchNumber) throws RTException;
 
     /**
      * Parse the UID into elements which are used to generate the UID. <br>
