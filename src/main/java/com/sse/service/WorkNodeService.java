@@ -1,8 +1,8 @@
 package com.sse.service;
 
 import com.sse.config.UidGeneratorConfig;
-import com.sse.mapper.WorkNodeMapper;
 import com.sse.exception.WorkIdOverFlowException;
+import com.sse.mapper.WorkNodeMapper;
 import com.sse.model.WorkNodeEntity;
 import com.sse.uid.BitsAllocate;
 import com.sse.uid.WorkNodeAssigner;
@@ -37,14 +37,15 @@ public class WorkNodeService implements WorkNodeAssigner {
     @Transactional
     @Override
     public int getWorkNodeId() {
-        if (uidGeneratorConfig.getWorkNodeId() != null) {
-            return uidGeneratorConfig.getWorkNodeId();
-        }
         WorkNodeEntity entity = buildWorkerNode();
-        // 如果同一ip 同一 port 会为每一个请求新加一个 workId
-        List<Integer> allWorkNodeId = workNodeMapper.getAllWorkNodeId();
-        entity.setWorkNodeId(getAvaiableId(allWorkNodeId));
-        workNodeMapper.addWorkNode(entity);
+        if (uidGeneratorConfig.getWorkNodeId() != null) {
+            entity.setWorkNodeId(uidGeneratorConfig.getWorkNodeId());
+        } else {
+            // 如果同一ip 同一 port 会为每一个请求新加一个 workId
+            List<Integer> allWorkNodeId = workNodeMapper.getAllWorkNodeId();
+            entity.setWorkNodeId(getAvaiableId(allWorkNodeId));
+            workNodeMapper.addWorkNode(entity);
+        }
         return entity.getWorkNodeId();
     }
 

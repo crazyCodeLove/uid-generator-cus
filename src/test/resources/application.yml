@@ -1,7 +1,5 @@
 server:
   port: 8061
-  servlet:
-    context-path: /uid-generator
 
 spring:
   application:
@@ -34,7 +32,7 @@ uid:
     epochStr: 2018-12-21
 
   workNode:
-    nodeId:
+    nodeId: 0
 
 logging:
   level:

@@ -26,14 +26,14 @@
 		#{port},
 		#{workNodeId},
 		NOW(),
-		#{status},
+		#{status}
 		NOW())
 	</insert>
 
 	<delete id="deleteWorkNode" parameterType="long">
 		DELETE
 		FROM work_node
-		WHERE ID = #{id}
+		WHERE ID=#{id}
 	</delete>
 
 	<update id="updateWorkNode" parameterType="int">

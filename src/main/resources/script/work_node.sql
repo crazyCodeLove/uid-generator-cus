@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS `worker_node`;
+DROP TABLE IF EXISTS `WORK_NODE`;
 
-CREATE TABLE `worker_node` (
+CREATE TABLE `WORK_NODE` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'auto increment id',
   `IP` varchar(128) NOT NULL COMMENT 'host name',
   `PORT` varchar(64) NOT NULL COMMENT 'port',
