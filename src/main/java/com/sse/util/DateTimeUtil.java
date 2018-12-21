@@ -56,7 +56,6 @@ public class DateTimeUtil extends DateUtils {
         try {
             return parseDate(str, new String[]{pattern});
         } catch (ParseException e) {
-            e.printStackTrace();
             throw new RTException(e);
         }
     }
