@@ -1,4 +1,4 @@
-package com.sse.dao;
+package com.sse.mapper;
 
 import com.sse.model.WorkNodeEntity;
 import org.apache.ibatis.annotations.Mapper;
@@ -20,11 +20,12 @@ public interface WorkNodeMapper {
 
     void updateWorkNode(long workNodeId);
 
-    /** 根据 id 获取 WorkNode */
+    /**
+     * 根据 id 获取 WorkNode
+     */
     WorkNodeEntity getWorkNode(@Param("id") long id);
 
     List<Integer> getAllWorkNodeId();
-
 
 
 }

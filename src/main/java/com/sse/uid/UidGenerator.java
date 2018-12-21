@@ -13,10 +13,10 @@ public interface UidGenerator {
     /**
      * Get a unique ID
      *
-     * @return UID
+     * @return Uid
      * @throws RTException
      */
-    long getUID() throws RTException;
+    long getUid() throws RTException;
 
     /**
      * get batch Uids
@@ -32,5 +32,5 @@ public interface UidGenerator {
      * @param uid
      * @return Parsed info
      */
-    String parseUID(long uid);
+    String parseUid(long uid);
 }

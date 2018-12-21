@@ -1,7 +1,7 @@
 package com.sse.service;
 
 import com.sse.config.UidGeneratorConfig;
-import com.sse.dao.WorkNodeMapper;
+import com.sse.mapper.WorkNodeMapper;
 import com.sse.exception.WorkIdOverFlowException;
 import com.sse.model.WorkNodeEntity;
 import com.sse.uid.BitsAllocate;

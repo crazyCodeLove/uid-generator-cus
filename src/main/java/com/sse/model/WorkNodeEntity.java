@@ -1,5 +1,6 @@
 package com.sse.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ import java.util.Date;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class WorkNodeEntity {
 
@@ -40,7 +42,7 @@ public class WorkNodeEntity {
     /**
      * Worker launch date, default now
      */
-    private Date launchDate = new Date();
+    private Date launchDate;
 
     /**
      * server status, on or off
