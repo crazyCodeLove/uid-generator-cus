@@ -5,19 +5,25 @@ spring:
   application:
     name: uid-generator
   datasource:
-    hikari:
-      jdbc-url: jdbc:mysql://127.0.0.1:3306/snowflakecus
-      username: root
-      password: root123
-      minimum-idle: 3
-      connection-timeout: 30000
-      maximum-pool-size: 50
-      idle-timeout: 60000
-      driver-class-name: com.mysql.jdbc.Driver
-
+    url: jdbc:mysql://127.0.0.1:3306/snowflakecus?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false
+    username: root
+    password: root123
+    driver-class-name: com.mysql.jdbc.Driver
+eureka:
+  instance:
+    preferIpAddress: true
+    hostname: 127.0.0.1
+    instanceId: ${spring.cloud.client.ipAddress:127.0.0.1}:${server.port}
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${eureka.port:8010}/eureka/
 
 mybatis:
   mapper-locations: classpath*:mapper/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 uid:
   generate:
@@ -28,6 +34,5 @@ uid:
 
   workNode:
     nodeId: 0
-
 
 

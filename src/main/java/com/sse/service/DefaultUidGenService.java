@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,21 +22,21 @@ import org.springframework.stereotype.Service;
  */
 
 @Service
-@Data
-@NoArgsConstructor
-public class DefaultUidGenService implements UidGenerator {
-
+public class DefaultUidGenService implements UidGenerator, InitializingBean {
     @Autowired
     private UidGeneratorConfig uidGeneratorConfig;
-
-    private long epochMilliSeconds = DateTimeUtil.parseByDayPattern(uidGeneratorConfig.getEpochStr()).getTime();
 
     @Autowired
     private BitsAllocate bitsAllocate;
 
     @Autowired
     private WorkNodeAssigner workNodeService;
-    private int workNodeId = workNodeService.getWorkNodeId();
+
+    /** 起始日期对应的毫秒 */
+    private long epochMilliSeconds;
+
+    /** server work node id */
+    private int workNodeId;
 
     private volatile long sequence = 0L;
     private volatile long lastMilliSeconds = -1L;
@@ -110,4 +111,9 @@ public class DefaultUidGenService implements UidGenerator {
     }
 
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        workNodeId = workNodeService.getWorkNodeId();
+        epochMilliSeconds = DateTimeUtil.parseByDayPattern(uidGeneratorConfig.getEpochStr()).getTime();
+    }
 }

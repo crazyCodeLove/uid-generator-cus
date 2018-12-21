@@ -1,12 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.sse.mapper.WorkNodeMapper">
     <resultMap id="workNodeRes"
                type="com.sse.model.WorkNodeEntity">
         <id column="ID" jdbcType="BIGINT" property="id" />
         <result column="IP" jdbcType="VARCHAR" property="ip" />
         <result column="PORT" jdbcType="VARCHAR" property="port" />
-		<result column="WORK_NODE_ID" jdbcType="INT" property="workNodeId"/>
+		<result column="WORK_NODE_ID" jdbcType="INTEGER" property="workNodeId"/>
         <result column="LAUNCH_DATE" jdbcType="TIMESTAMP" property="launchDate" />
 		<result column="STATUS" jdbcType="VARCHAR" property="status"/>
         <result column="LAST_UPDATE_TIME" jdbcType="TIMESTAMP" property="lastUpdateTime" />

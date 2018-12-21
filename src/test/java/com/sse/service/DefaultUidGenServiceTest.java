@@ -17,14 +17,4 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 public class DefaultUidGenServiceTest {
 
-    @Autowired
-    private DefaultUidGenService uidGenService;
-
-    @Test
-    public void getUidTest() {
-        long uid = uidGenService.getUid();
-        Assert.assertTrue(uid>0);
-        System.out.println(uid);
-    }
-
 }
