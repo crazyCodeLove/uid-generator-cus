@@ -7,10 +7,6 @@ import com.sse.uid.BitsAllocate;
 import com.sse.uid.UidGenerator;
 import com.sse.uid.WorkNodeAssigner;
 import com.sse.util.DateTimeUtil;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,10 +28,14 @@ public class DefaultUidGenService implements UidGenerator, InitializingBean {
     @Autowired
     private WorkNodeAssigner workNodeService;
 
-    /** 起始日期对应的毫秒 */
+    /**
+     * 起始日期对应的毫秒
+     */
     private long epochMilliSeconds;
 
-    /** server work node id */
+    /**
+     * server work node id
+     */
     private int workNodeId;
 
     private volatile long sequence = 0L;
@@ -50,8 +50,8 @@ public class DefaultUidGenService implements UidGenerator, InitializingBean {
             long refusedSeconds = lastMilliSeconds - currentMilliSecond;
             throw new UidGenerateException(String.format("Clock moved backwards. Refusing for %d seconds", refusedSeconds));
         }
-
         long result = 0;
+        long sequenceNew = 0;
         synchronized (this) {
             // At the same second, increase sequence
             if (currentMilliSecond == lastMilliSeconds) {
@@ -64,8 +64,9 @@ public class DefaultUidGenService implements UidGenerator, InitializingBean {
             } else {
                 sequence = 0L;
             }
-            result = bitsAllocate.generateUid(currentMilliSecond - epochMilliSeconds, workNodeId, sequence);
+            sequenceNew = sequence;
         }
+        result = bitsAllocate.generateUid(currentMilliSecond - epochMilliSeconds, workNodeId, sequenceNew);
         lastMilliSeconds = currentMilliSecond;
         // Allocate bits for UID
         return result;
@@ -110,7 +111,11 @@ public class DefaultUidGenService implements UidGenerator, InitializingBean {
         return timestamp;
     }
 
-
+    /**
+     * 在属性装配完毕后做的初始化工作。依赖于自动装配对象的方法。
+     *
+     * @throws Exception
+     */
     @Override
     public void afterPropertiesSet() throws Exception {
         workNodeId = workNodeService.getWorkNodeId();

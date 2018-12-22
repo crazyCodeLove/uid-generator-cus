@@ -38,7 +38,9 @@ public class WorkNodeService implements WorkNodeAssigner {
     @Override
     public int getWorkNodeId() {
         WorkNodeEntity entity = buildWorkerNode();
-        if (uidGeneratorConfig.getWorkNodeId() != null) {
+        if (uidGeneratorConfig.getWorkNodeId() != null &&
+                uidGeneratorConfig.getWorkNodeId() >= 0 &&
+                uidGeneratorConfig.getWorkNodeId() <= bitsAllocate.getMaxWorkId()) {
             entity.setWorkNodeId(uidGeneratorConfig.getWorkNodeId());
         } else {
             // 如果同一ip 同一 port 会为每一个请求新加一个 workId
