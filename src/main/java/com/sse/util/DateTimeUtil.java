@@ -96,6 +96,16 @@ public class DateTimeUtil extends DateUtils {
     }
 
     /**
+     * Format date by 'yyyy-MM-dd HH:mm:ss.SSS' pattern
+     *
+     * @param date
+     * @return
+     */
+    public static String formatByDateTimeMsPattern(Date date) {
+        return DateFormatUtils.format(date, DATETIME_MS_PATTERN);
+    }
+
+    /**
      * Get current day using format date by 'yyyy-MM-dd HH:mm:ss' pattern
      *
      * @return

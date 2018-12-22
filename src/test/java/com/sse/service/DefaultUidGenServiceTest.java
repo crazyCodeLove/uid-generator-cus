@@ -1,10 +1,13 @@
 package com.sse.service;
 
+import com.sse.uid.UidGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
@@ -25,7 +28,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DefaultUidGenServiceTest {
 
     @Autowired
-    private DefaultUidGenService uidGenService;
+    @Qualifier(value = "DefaultUidGenService")
+    private UidGenerator uidGenService;
 
     private final int COUNT = 10000000; // 1000w 测试生成数量
 

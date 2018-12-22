@@ -1,13 +1,7 @@
 package com.sse.service;
 
-import com.sse.config.UidGeneratorConfig;
 import com.sse.exception.RTException;
-import com.sse.exception.UidGenerateException;
-import com.sse.uid.BitsAllocate;
 import com.sse.uid.UidGenerator;
-import com.sse.uid.WorkNodeAssigner;
-import com.sse.util.DateTimeUtil;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,53 +11,48 @@ import org.springframework.stereotype.Service;
  * @date 2018-12-20 20:54
  */
 
-@Service
-public class DefaultUidGenService implements UidGenerator, InitializingBean {
-    @Autowired
-    private UidGeneratorConfig uidGeneratorConfig;
+@Service(value = "DefaultUidGenService")
+public class DefaultUidGenService implements UidGenerator {
 
     @Autowired
-    private BitsAllocate bitsAllocate;
-
-    @Autowired
-    private WorkNodeAssigner workNodeService;
+    private UidGenServiceBase uidGenBase;
 
     /**
-     * 起始日期对应的毫秒
+     * sequence number
      */
-    private long epochMilliSeconds;
-
-    /**
-     * server work node id
-     */
-    private int workNodeId;
-
     private volatile long sequence = 0L;
+
+    /**
+     * last get uid timestamp
+     */
     private volatile long lastMilliSeconds = -1L;
 
 
     @Override
     public synchronized long getUid() throws RTException {
-        long currentMilliSecond = getCurrentMilliSecond();
+        long currentMilliSecond = uidGenBase.getCurrentMilliSecond();
         // Clock moved backwards, refuse to generate uid
         long result = 0;
         long sequenceNew = 0;
         while (currentMilliSecond < lastMilliSeconds) {
-            currentMilliSecond = getCurrentMilliSecond();
+            currentMilliSecond = uidGenBase.getCurrentMilliSecond();
         }
         // At the same second, increase sequence
         if (currentMilliSecond == lastMilliSeconds) {
-            sequence = (sequence + 1) & bitsAllocate.getMaxSequence();
+            sequence = (sequence + 1) & uidGenBase.getBitsAllocate().getMaxSequence();
             // Exceed the max sequence, we wait the next milliSecond to generate uid
             if (sequence == 0) {
-                currentMilliSecond = getNextMilliSecond(lastMilliSeconds);
+                currentMilliSecond = uidGenBase.getNextMilliSecond(lastMilliSeconds);
             }
             // At the different milliSecond, sequence restart from zero
         } else {
             sequence = 0L;
         }
         sequenceNew = sequence;
-        result = bitsAllocate.generateUid(currentMilliSecond - epochMilliSeconds, workNodeId, sequenceNew);
+        result = uidGenBase.getBitsAllocate().generateUid(
+                currentMilliSecond - uidGenBase.getEpochMilliSeconds(),
+                uidGenBase.getWorkNodeId(),
+                sequenceNew);
         lastMilliSeconds = currentMilliSecond;
         // Allocate bits for UID
         return result;
@@ -85,39 +74,6 @@ public class DefaultUidGenService implements UidGenerator, InitializingBean {
 
     @Override
     public String parseUid(long uid) {
-        return null;
-    }
-
-    /**
-     * Get current milliSecond
-     */
-    private long getCurrentMilliSecond() {
-        long currentMilliSecond = System.currentTimeMillis();
-        if (currentMilliSecond - epochMilliSeconds > bitsAllocate.getMaxDeltaMilliSeconds()) {
-            throw new UidGenerateException("Timestamp bits is exhausted. Refusing UID generate. Now: " + currentMilliSecond);
-        }
-        return currentMilliSecond;
-    }
-
-    /**
-     * Get next millisecond
-     */
-    private long getNextMilliSecond(long lastMilliSeconds) {
-        long timestamp = getCurrentMilliSecond();
-        while (timestamp <= lastMilliSeconds) {
-            timestamp = getCurrentMilliSecond();
-        }
-        return timestamp;
-    }
-
-    /**
-     * 在属性装配完毕后做的初始化工作。依赖于自动装配对象的方法。
-     *
-     * @throws Exception
-     */
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        workNodeId = workNodeService.getWorkNodeId();
-        epochMilliSeconds = DateTimeUtil.parseByDayPattern(uidGeneratorConfig.getEpochStr()).getTime();
+        return uidGenBase.parseUid(uid);
     }
 }
