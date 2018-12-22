@@ -43,29 +43,26 @@ public class DefaultUidGenService implements UidGenerator, InitializingBean {
 
 
     @Override
-    public long getUid() throws RTException {
+    public synchronized long getUid() throws RTException {
         long currentMilliSecond = getCurrentMilliSecond();
         // Clock moved backwards, refuse to generate uid
-        if (currentMilliSecond < lastMilliSeconds) {
-            long refusedSeconds = lastMilliSeconds - currentMilliSecond;
-            throw new UidGenerateException(String.format("Clock moved backwards. Refusing for %d seconds", refusedSeconds));
-        }
         long result = 0;
         long sequenceNew = 0;
-        synchronized (this) {
-            // At the same second, increase sequence
-            if (currentMilliSecond == lastMilliSeconds) {
-                sequence = (sequence + 1) & bitsAllocate.getMaxSequence();
-                // Exceed the max sequence, we wait the next milliSecond to generate uid
-                if (sequence == 0) {
-                    currentMilliSecond = getNextMilliSecond(lastMilliSeconds);
-                }
-                // At the different milliSecond, sequence restart from zero
-            } else {
-                sequence = 0L;
-            }
-            sequenceNew = sequence;
+        while (currentMilliSecond < lastMilliSeconds) {
+            currentMilliSecond = getCurrentMilliSecond();
         }
+        // At the same second, increase sequence
+        if (currentMilliSecond == lastMilliSeconds) {
+            sequence = (sequence + 1) & bitsAllocate.getMaxSequence();
+            // Exceed the max sequence, we wait the next milliSecond to generate uid
+            if (sequence == 0) {
+                currentMilliSecond = getNextMilliSecond(lastMilliSeconds);
+            }
+            // At the different milliSecond, sequence restart from zero
+        } else {
+            sequence = 0L;
+        }
+        sequenceNew = sequence;
         result = bitsAllocate.generateUid(currentMilliSecond - epochMilliSeconds, workNodeId, sequenceNew);
         lastMilliSeconds = currentMilliSecond;
         // Allocate bits for UID
@@ -73,11 +70,13 @@ public class DefaultUidGenService implements UidGenerator, InitializingBean {
     }
 
     @Override
-    public long[] getUidBatch(int batchNumber) {
+    public long[] getUidBatch(int batchNumber) throws RTException {
         if (batchNumber <= 0) {
             batchNumber = 1;
         }
         long[] result = new long[batchNumber];
+
+
         for (int i = 0; i < batchNumber; i++) {
             result[i] = getUid();
         }
