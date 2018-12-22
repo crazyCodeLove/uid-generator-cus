@@ -13,10 +13,14 @@ public class UidBatchSequenceRange {
     private final long currentMilliSecond;
     @Getter
     private final long workNodeId;
-    /** 可用的 sequence 起始序号 */
+    /**
+     * 可用的 sequence 起始序号
+     */
     @Getter
     private final long sequenceStart;
-    /** 可用的 sequence 末尾序号 */
+    /**
+     * 可用的 sequence 末尾序号
+     */
     @Getter
     private final long sequenceEnd;
 

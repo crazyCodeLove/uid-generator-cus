@@ -32,6 +32,9 @@ public class DefaultUidGenServiceTest {
 
     private final int COUNT = 10000000; // 1000w 测试生成数量
 
+    // 可用线程数
+    private final int THREADS = Math.max(Runtime.getRuntime().availableProcessors() << 1, 1);
+
     @Test
     public void getUidSerialTest() {
         long startTime = System.currentTimeMillis();
@@ -47,7 +50,7 @@ public class DefaultUidGenServiceTest {
     public void getUidBatchSerialTest() {
         long startTime = System.currentTimeMillis();
         HashSet<Long> uids = new HashSet<>(COUNT);
-        generateUidBatch(uids,COUNT);
+        generateUidBatch(uids, COUNT);
         Assert.assertTrue(uids.size() == COUNT);
         System.out.println("last time(ms):" + (System.currentTimeMillis() - startTime));
     }
@@ -55,7 +58,6 @@ public class DefaultUidGenServiceTest {
     @Test
     public void getUidParallelTest() throws InterruptedException {
         long startTime = System.currentTimeMillis();
-        int THREADS = Math.max(Runtime.getRuntime().availableProcessors() << 1, 1);
         System.out.println("threads:" + THREADS);
         AtomicInteger control = new AtomicInteger(-1);
         Set<Long> uidSet = new ConcurrentSkipListSet<>();
@@ -72,7 +74,29 @@ public class DefaultUidGenServiceTest {
         for (Thread thread : threadList) {
             thread.join();
         }
-        Assert.assertEquals(COUNT, control.get());
+        Assert.assertEquals(COUNT, uidSet.size());
+        System.out.println("last time(ms):" + (System.currentTimeMillis() - startTime));
+    }
+
+    @Test
+    public void getUidBatchParallelTest() throws InterruptedException {
+        long startTime = System.currentTimeMillis();
+        int batchSize = 500;
+        System.out.println("threads:" + THREADS);
+        AtomicInteger control = new AtomicInteger(-1);
+        Set<Long> uidSet = new ConcurrentSkipListSet<>();
+        // Initialize threads
+        List<Thread> threadList = new ArrayList<>(THREADS);
+        for (int i = 0; i < THREADS; i++) {
+            Thread thread = new Thread(() -> workerRunBatch(uidSet, control, batchSize));
+            thread.setName("UID-generator-" + i);
+            threadList.add(thread);
+            thread.start();
+        }
+        // Wait for worker done
+        for (Thread thread : threadList) {
+            thread.join();
+        }
         Assert.assertEquals(COUNT, uidSet.size());
         System.out.println("last time(ms):" + (System.currentTimeMillis() - startTime));
     }
@@ -91,6 +115,20 @@ public class DefaultUidGenServiceTest {
     }
 
     /**
+     * Worker run
+     */
+    private void workerRunBatch(Set<Long> uidSet, AtomicInteger control, int batch) {
+        for (; ; ) {
+            int myPosition = control.updateAndGet(old -> (old == COUNT ? COUNT : old + 1));
+            if (myPosition >= COUNT / batch) {
+                return;
+            }
+            generateUidBatch(uidSet, batch);
+        }
+    }
+
+
+    /**
      * 获取一个 Uid
      *
      * @param uids
@@ -101,6 +139,7 @@ public class DefaultUidGenServiceTest {
 
     /**
      * 获取一批 Uid
+     *
      * @param uids
      * @param batch
      */

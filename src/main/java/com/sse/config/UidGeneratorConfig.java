@@ -47,8 +47,10 @@ public class UidGeneratorConfig {
     @Value("${server.port}")
     private String serverPort;
 
-    /** 生成 uid 批处理方法，每次最多可以生成的数量所占位数，每次最多为 131072 个*/
-    private int UID_BATCH_MAX_SIZE = 1<<17;
+    /**
+     * 生成 uid 批处理方法，每次最多可以生成的数量所占位数，每次最多为 131072 个
+     */
+    private int UID_BATCH_MAX_SIZE = 1 << 17;
 
     /**
      * 分配各部分所占位长度
