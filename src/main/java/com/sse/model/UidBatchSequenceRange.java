@@ -8,20 +8,17 @@ import lombok.Getter;
  * @date 2018-12-22 14:24
  */
 
+@Getter
 public class UidBatchSequenceRange {
-    @Getter
     private final long currentMilliSecond;
-    @Getter
     private final long workNodeId;
     /**
      * 可用的 sequence 起始序号
      */
-    @Getter
     private final long sequenceStart;
     /**
      * 可用的 sequence 末尾序号
      */
-    @Getter
     private final long sequenceEnd;
 
     public UidBatchSequenceRange(long currentMilliSecond, long workNodeId, long sequenceStart, long sequenceEnd) {
