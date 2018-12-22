@@ -1,12 +1,13 @@
-DROP TABLE IF EXISTS `WORK_NODE`;
+DROP TABLE IF EXISTS `work_node`;
 
-CREATE TABLE `WORK_NODE` (
+CREATE TABLE `work_node` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'auto increment id',
   `IP` varchar(128) NOT NULL COMMENT 'host name',
   `PORT` varchar(64) NOT NULL COMMENT 'port',
   `WORK_NODE_ID` int(11) NOT NULL COMMENT 'work node id',
-  `LAUNCH_DATE` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'launch date',
+  `LAUNCH_DATE` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'launch date',
   `STATUS` varchar(3) NOT NULL COMMENT 'server status, on or off',
   `LAST_UPDATE_TIME` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'last update time',
-  PRIMARY KEY (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='DB WorkerID Assigner for UID Generator';
+  PRIMARY KEY (`ID`),
+  UNIQUE KEY `WORK_NODE_ID` (`WORK_NODE_ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=75 DEFAULT CHARSET=utf8 COMMENT='DB WorkerID Assigner for UID Generator';

@@ -53,6 +53,11 @@ public class UidGeneratorConfig {
     private int UID_BATCH_MAX_SIZE = 1 << 17;
 
     /**
+     * 如果 workNodeId last_update_time 超过 60 分钟没有更新就进行删除
+     */
+    private int INVALID_WORK_NODE_MAX_LAST_TIME_MINUTE = 60;
+
+    /**
      * 分配各部分所占位长度
      */
     @Bean

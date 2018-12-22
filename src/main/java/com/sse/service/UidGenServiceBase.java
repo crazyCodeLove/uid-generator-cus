@@ -1,15 +1,17 @@
 package com.sse.service;
 
 import com.sse.config.UidGeneratorConfig;
-import com.sse.exception.UidBatchSizeOverflowException;
 import com.sse.exception.UidGenerateException;
 import com.sse.model.UidBatchSequenceRange;
+import com.sse.model.WorkNodeEntity;
 import com.sse.uid.BitsAllocate;
 import com.sse.uid.WorkNodeAssigner;
 import com.sse.util.DateTimeUtil;
 import lombok.Data;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ import java.util.concurrent.TimeUnit;
  * @date 2018-12-22 13:33
  */
 
+@EnableScheduling
 @Service
 @Data
 public class UidGenServiceBase implements InitializingBean {
@@ -46,13 +49,35 @@ public class UidGenServiceBase implements InitializingBean {
     private int workNodeId;
 
     /**
+     * 每隔 10分钟 更新一下当前 workNodeId 的访问时间
+     */
+    @Scheduled(cron = "0 0/10 * * * ?")
+    public void updateWorkNodeIdAccessTime() {
+        workNodeService.updateWorkNodeAccessTime(workNodeId);
+    }
+
+    /**
+     * 每隔一小时清理一次无效的 workNodeId。上次访问时间超过了默认的 INVALID_WORK_NODE_MAX_LAST_TIME_MINUTE = 60 分钟
+     */
+    @Scheduled(cron = "0 0 0/1 * * ?")
+    public void removeInvalidateWorkNode() {
+        List<WorkNodeEntity> allWorkNode = workNodeService.getAllWorkNodeLastUpdateTime();
+        for (WorkNodeEntity entity : allWorkNode) {
+            Date that = DateTimeUtil.addMinutes(entity.getLastUpdateTime(), uidGeneratorConfig.getINVALID_WORK_NODE_MAX_LAST_TIME_MINUTE());
+            if (TimeUnit.MILLISECONDS.toMinutes(that.getTime()) < TimeUnit.MILLISECONDS.toMinutes(new Date().getTime())) {
+                workNodeService.deleteWorkNode(entity.getId());
+            }
+        }
+    }
+
+    /**
      * @param range
      * @return
      */
     public List<Long> getUidBatch(UidBatchSequenceRange range) {
-        long size = range.getSequenceEnd()-range.getSequenceStart() + 1;
-        int acc_size = (int)size;
-        List<Long> uids = new ArrayList<>(acc_size*2);
+        long size = range.getSequenceEnd() - range.getSequenceStart() + 1;
+        int acc_size = (int) size;
+        List<Long> uids = new ArrayList<>(acc_size * 2);
         for (int i = 0; i < acc_size; i++) {
             uids.add(bitsAllocate.generateUid(range.getCurrentMilliSecond() - epochMilliSeconds,
                     range.getWorkNodeId(),

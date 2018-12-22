@@ -3,13 +3,13 @@
 <mapper namespace="com.sse.mapper.WorkNodeMapper">
     <resultMap id="workNodeRes"
                type="com.sse.model.WorkNodeEntity">
-        <id column="ID" jdbcType="BIGINT" property="id" />
-        <result column="IP" jdbcType="VARCHAR" property="ip" />
-        <result column="PORT" jdbcType="VARCHAR" property="port" />
-		<result column="WORK_NODE_ID" jdbcType="INTEGER" property="workNodeId"/>
-        <result column="LAUNCH_DATE" jdbcType="TIMESTAMP" property="launchDate" />
-		<result column="STATUS" jdbcType="VARCHAR" property="status"/>
-        <result column="LAST_UPDATE_TIME" jdbcType="TIMESTAMP" property="lastUpdateTime" />
+        <id column="ID" jdbcType="BIGINT" property="id"/>
+        <result column="IP" jdbcType="VARCHAR" property="ip"/>
+        <result column="PORT" jdbcType="VARCHAR" property="port"/>
+        <result column="WORK_NODE_ID" jdbcType="INTEGER" property="workNodeId"/>
+        <result column="LAUNCH_DATE" jdbcType="TIMESTAMP" property="launchDate"/>
+        <result column="STATUS" jdbcType="VARCHAR" property="status"/>
+        <result column="LAST_UPDATE_TIME" jdbcType="TIMESTAMP" property="lastUpdateTime"/>
     </resultMap>
 
     <insert id="addWorkNode" useGeneratedKeys="true" keyProperty="id"
@@ -30,29 +30,40 @@
 		NOW())
 	</insert>
 
-	<delete id="deleteWorkNode" parameterType="long">
+    <delete id="deleteWorkNode" parameterType="long">
 		DELETE
 		FROM work_node
 		WHERE ID = #{id}
 	</delete>
 
-	<update id="updateWorkNode" parameterType="int">
+    <update id="updateWorkNodeAccessTime" parameterType="int">
 		UPDATE
 		work_node
 		SET LAST_UPDATE_TIME = NOW()
-		WHERE WORK_NODE_ID = #{work_node_id}
+		WHERE WORK_NODE_ID = #{workNodeId}
 	</update>
 
-	<select id="getWorkNode" parameterType="long" resultMap="workNodeRes">
+    <select id="getWorkNode" parameterType="long" resultMap="workNodeRes">
 		SELECT *
 		FROM work_node
 		WHERE ID = #{id}
 	</select>
 
-	<select id="getAllWorkNodeId" resultType="int">
-		SELECT work_node_id
+	<select id="getWorkNodeByWorkNodeId" parameterType="int" resultMap="workNodeRes">
+		SELECT *
+		FROM work_node
+		WHERE WORK_NODE_ID = #{workNodeId}
+	</select>
+
+    <select id="getAllWorkNodeId" resultType="int">
+		SELECT WORK_NODE_ID
   		FROM work_node
   		WHERE STATUS='on'
+	</select>
+
+    <select id="getAllWorkNodeLastUpdateTime" resultMap="workNodeRes">
+		SELECT ID, LAST_UPDATE_TIME
+		FROM work_node
 	</select>
 
 

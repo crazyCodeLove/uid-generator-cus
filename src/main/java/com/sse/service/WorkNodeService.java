@@ -7,10 +7,12 @@ import com.sse.model.WorkNodeEntity;
 import com.sse.uid.BitsAllocate;
 import com.sse.uid.WorkNodeAssigner;
 import com.sse.util.IpUtil;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,6 +35,12 @@ public class WorkNodeService implements WorkNodeAssigner {
     @Autowired
     private BitsAllocate bitsAllocate;
 
+    /**
+     * 缓存当前的 workNodeEntity
+     */
+    @Getter
+    private WorkNodeEntity workNodeEntity;
+
 
     @Transactional
     @Override
@@ -48,7 +56,28 @@ public class WorkNodeService implements WorkNodeAssigner {
             entity.setWorkNodeId(getAvaiableId(allWorkNodeId));
             workNodeMapper.addWorkNode(entity);
         }
+        workNodeEntity = entity;
         return entity.getWorkNodeId();
+    }
+
+    @Override
+    public void updateWorkNodeAccessTime(int workNodeId) {
+        workNodeEntity.setLastUpdateTime(new Date());
+        if (workNodeMapper.getWorkNodeByWorkNodeId(workNodeId) != null) {
+            workNodeMapper.updateWorkNodeAccessTime(workNodeId);
+        } else {
+            workNodeMapper.addWorkNode(workNodeEntity);
+        }
+    }
+
+    @Override
+    public List<WorkNodeEntity> getAllWorkNodeLastUpdateTime() {
+        return workNodeMapper.getAllWorkNodeLastUpdateTime();
+    }
+
+    @Override
+    public void deleteWorkNode(long id) {
+        workNodeMapper.deleteWorkNode(id);
     }
 
     /**
