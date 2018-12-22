@@ -1,9 +1,14 @@
 package com.sse.service;
 
 import com.sse.exception.RTException;
+import com.sse.exception.UidGenerateException;
+import com.sse.model.UidBatchSequenceRange;
 import com.sse.uid.UidGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author ZHAOPENGCHENG
@@ -33,41 +38,68 @@ public class DefaultUidGenService implements UidGenerator {
         long currentMilliSecond = uidGenBase.getCurrentMilliSecond();
         // Clock moved backwards, refuse to generate uid
         long result = 0;
-        long sequenceNew = 0;
-        while (currentMilliSecond < lastMilliSeconds) {
-            currentMilliSecond = uidGenBase.getCurrentMilliSecond();
+        if (currentMilliSecond < lastMilliSeconds) {
+            throw new UidGenerateException(String.format("Clock moved backwards. Refusing for %d seconds", lastMilliSeconds - currentMilliSecond));
         }
         // At the same second, increase sequence
-        if (currentMilliSecond == lastMilliSeconds) {
-            sequence = (sequence + 1) & uidGenBase.getBitsAllocate().getMaxSequence();
-            // Exceed the max sequence, we wait the next milliSecond to generate uid
-            if (sequence == 0) {
-                currentMilliSecond = uidGenBase.getNextMilliSecond(lastMilliSeconds);
-            }
+        if (currentMilliSecond > lastMilliSeconds) {
             // At the different milliSecond, sequence restart from zero
-        } else {
             sequence = 0L;
         }
-        sequenceNew = sequence;
         result = uidGenBase.getBitsAllocate().generateUid(
                 currentMilliSecond - uidGenBase.getEpochMilliSeconds(),
                 uidGenBase.getWorkNodeId(),
-                sequenceNew);
+                sequence);
+
+        sequence = (sequence + 1) & uidGenBase.getBitsAllocate().getMaxSequence();
+        // Exceed the max sequence, we wait the next milliSecond to generate uid
+        if (sequence == 0) {
+            currentMilliSecond = uidGenBase.getNextMilliSecond(lastMilliSeconds);
+        }
         lastMilliSeconds = currentMilliSecond;
         // Allocate bits for UID
         return result;
     }
 
     @Override
-    public long[] getUidBatch(int batchNumber) throws RTException {
+    public List<Long> getUidBatch(int batchNumber) throws RTException {
         if (batchNumber <= 0) {
             batchNumber = 1;
         }
-        long[] result = new long[batchNumber];
-
-
-        for (int i = 0; i < batchNumber; i++) {
-            result[i] = getUid();
+        List<Long> result = new ArrayList<>(batchNumber*2);
+        List<UidBatchSequenceRange> needToMake = new ArrayList<>();
+        synchronized (this) {
+            while (batchNumber > 0) {
+                long currentMilliSecond = uidGenBase.getCurrentMilliSecond();
+                if (currentMilliSecond < lastMilliSeconds) {
+                    throw new UidGenerateException(String.format("Clock moved backwards. Refusing for %d seconds", lastMilliSeconds - currentMilliSecond));
+                }
+                if (currentMilliSecond > lastMilliSeconds) {
+                    // At the different milliSecond, sequence restart from zero
+                    sequence = 0L;
+                }
+                long availableUidNumber = uidGenBase.getBitsAllocate().getMaxSequence() - sequence + 1;
+                UidBatchSequenceRange uidBatchSequenceRange;
+                if (batchNumber >= availableUidNumber) {
+                    // 需要的 >= 可提供的
+                    uidBatchSequenceRange = new UidBatchSequenceRange(currentMilliSecond, uidGenBase.getWorkNodeId(), sequence, uidGenBase.getBitsAllocate().getMaxSequence());
+                    sequence = 0L;
+                    batchNumber -= availableUidNumber;
+                    uidGenBase.getNextMilliSecond(currentMilliSecond);
+                } else {
+                    // 需要的 < 可提供的，还有冗余
+                    uidBatchSequenceRange = new UidBatchSequenceRange(currentMilliSecond, uidGenBase.getWorkNodeId(), sequence, sequence + batchNumber - 1);
+                    sequence += batchNumber;
+                    batchNumber = 0;
+                }
+                needToMake.add(uidBatchSequenceRange);
+                lastMilliSeconds = currentMilliSecond;
+            }
+        }
+        for (UidBatchSequenceRange range :
+                needToMake) {
+            List<Long> uidBatch = uidGenBase.getUidBatch(range);
+            result.addAll(uidBatch);
         }
         return result;
     }

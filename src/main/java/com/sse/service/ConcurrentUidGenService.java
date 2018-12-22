@@ -9,6 +9,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * @author ZHAOPENGCHENG
  * @email
@@ -24,8 +26,8 @@ public class ConcurrentUidGenService implements UidGenerator {
     }
 
     @Override
-    public long[] getUidBatch(int batchNumber) throws RTException {
-        return new long[0];
+    public List<Long> getUidBatch(int batchNumber) throws RTException {
+        return null;
     }
 
     @Override

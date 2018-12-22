@@ -2,6 +2,8 @@ package com.sse.uid;
 
 import com.sse.exception.RTException;
 
+import java.util.List;
+
 /**
  * @author ZHAOPENGCHENG
  * @email
@@ -23,7 +25,7 @@ public interface UidGenerator {
      * @param batchNumber
      * @return
      */
-    long[] getUidBatch(int batchNumber) throws RTException;
+    List<Long> getUidBatch(int batchNumber) throws RTException;
 
     /**
      * Parse the UID into elements which are used to generate the UID. <br>

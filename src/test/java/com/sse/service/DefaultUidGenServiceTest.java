@@ -7,7 +7,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
@@ -45,6 +44,15 @@ public class DefaultUidGenServiceTest {
     }
 
     @Test
+    public void getUidBatchSerialTest() {
+        long startTime = System.currentTimeMillis();
+        HashSet<Long> uids = new HashSet<>(COUNT);
+        generateUidBatch(uids,COUNT);
+        Assert.assertTrue(uids.size() == COUNT);
+        System.out.println("last time(ms):" + (System.currentTimeMillis() - startTime));
+    }
+
+    @Test
     public void getUidParallelTest() throws InterruptedException {
         long startTime = System.currentTimeMillis();
         int THREADS = Math.max(Runtime.getRuntime().availableProcessors() << 1, 1);
@@ -73,7 +81,7 @@ public class DefaultUidGenServiceTest {
      * Worker run
      */
     private void workerRun(Set<Long> uidSet, AtomicInteger control) {
-        for (;;) {
+        for (; ; ) {
             int myPosition = control.updateAndGet(old -> (old == COUNT ? COUNT : old + 1));
             if (myPosition == COUNT) {
                 return;
@@ -84,10 +92,20 @@ public class DefaultUidGenServiceTest {
 
     /**
      * 获取一个 Uid
+     *
      * @param uids
      */
     private void generateUid(Set<Long> uids) {
         uids.add(uidGenService.getUid());
+    }
+
+    /**
+     * 获取一批 Uid
+     * @param uids
+     * @param batch
+     */
+    private void generateUidBatch(Set<Long> uids, int batch) {
+        uids.addAll(uidGenService.getUidBatch(batch));
     }
 
 }
