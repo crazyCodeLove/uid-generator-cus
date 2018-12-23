@@ -61,16 +61,24 @@ public class DefaultUidGenService implements UidGenerator {
         return result;
     }
 
+    /**
+     * 谁先抢到锁，先分配。
+     *
+     * @param batchNumber
+     * @return
+     * @throws RTException
+     */
     @Override
     public List<Long> getUidBatch(int batchNumber) throws RTException {
         if (batchNumber <= 0) {
             batchNumber = 1;
         }
-        List<Long> result = new ArrayList<>(batchNumber*2);
+        List<Long> result = new ArrayList<>(batchNumber * 2);
         List<UidBatchSequenceRange> needToMake = new ArrayList<>();
         synchronized (this) {
             while (batchNumber > 0) {
                 long currentMilliSecond = uidGenBase.getCurrentMilliSecond();
+                // Clock moved backwards exception
                 if (currentMilliSecond < lastMilliSeconds) {
                     throw new UidGenerateException(String.format("Clock moved backwards. Refusing for %d seconds", lastMilliSeconds - currentMilliSecond));
                 }
@@ -78,6 +86,7 @@ public class DefaultUidGenService implements UidGenerator {
                     // At the different milliSecond, sequence restart from zero
                     sequence = 0L;
                 }
+                // at current time available sequence number
                 long availableUidNumber = uidGenBase.getBitsAllocate().getMaxSequence() - sequence + 1;
                 UidBatchSequenceRange uidBatchSequenceRange;
                 if (batchNumber >= availableUidNumber) {
