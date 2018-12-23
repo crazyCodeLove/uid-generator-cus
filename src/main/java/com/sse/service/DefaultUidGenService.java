@@ -91,13 +91,21 @@ public class DefaultUidGenService implements UidGenerator {
                 UidBatchSequenceRange uidBatchSequenceRange;
                 if (batchNumber >= availableUidNumber) {
                     // 需要的 >= 可提供的
-                    uidBatchSequenceRange = new UidBatchSequenceRange(currentMilliSecond, uidGenBase.getWorkNodeId(), sequence, uidGenBase.getBitsAllocate().getMaxSequence());
+                    uidBatchSequenceRange = new UidBatchSequenceRange(
+                            currentMilliSecond,
+                            uidGenBase.getWorkNodeId(),
+                            sequence,
+                            uidGenBase.getBitsAllocate().getMaxSequence());
                     sequence = 0L;
                     batchNumber -= availableUidNumber;
                     uidGenBase.getNextMilliSecond(currentMilliSecond);
                 } else {
                     // 需要的 < 可提供的，还有冗余
-                    uidBatchSequenceRange = new UidBatchSequenceRange(currentMilliSecond, uidGenBase.getWorkNodeId(), sequence, sequence + batchNumber - 1);
+                    uidBatchSequenceRange = new UidBatchSequenceRange(
+                            currentMilliSecond,
+                            uidGenBase.getWorkNodeId(),
+                            sequence,
+                            sequence + batchNumber - 1);
                     sequence += batchNumber;
                     batchNumber = 0;
                 }
