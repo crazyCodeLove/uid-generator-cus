@@ -3,6 +3,9 @@ package com.sse.uid;
 import lombok.Data;
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author ZHAOPENGCHENG
  * @email
@@ -73,5 +76,23 @@ public class BitsAllocate {
      */
     public long generateUid(long deltaMilSec, long workerId, long sequence) {
         return (deltaMilSec << timestampShift) | (workerId << workerIdShift) | sequence;
+    }
+
+    /**
+     * get all uid at the deltaMilSec, and start sequence is startSequence
+     * sequenceBits must not more than 31
+     * @param deltaMilSec
+     * @param workerId
+     * @param startSequence
+     * @return
+     */
+    public List<Long> generateAllUidAtOneTimestamp(long deltaMilSec, long workerId, long startSequence) {
+        long startUid = (deltaMilSec << timestampShift) | (workerId << workerIdShift) | startSequence;
+        List<Long> allUids = new ArrayList<>((int)(getMaxSequence() - startSequence)<<1);
+        allUids.add(startUid);
+        for (long i = startSequence; i < getMaxSequence(); i++) {
+            allUids.add(startSequence + i);
+        }
+        return allUids;
     }
 }
