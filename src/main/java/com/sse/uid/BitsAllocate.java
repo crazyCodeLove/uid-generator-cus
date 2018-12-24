@@ -81,6 +81,7 @@ public class BitsAllocate {
     /**
      * get all uid at the deltaMilSec, and start sequence is startSequence
      * sequenceBits must not more than 31
+     *
      * @param deltaMilSec
      * @param workerId
      * @param startSequence
@@ -88,7 +89,7 @@ public class BitsAllocate {
      */
     public List<Long> generateAllUidAtOneTimestamp(long deltaMilSec, long workerId, long startSequence) {
         long startUid = (deltaMilSec << timestampShift) | (workerId << workerIdShift) | startSequence;
-        List<Long> allUids = new ArrayList<>((int)(getMaxSequence() - startSequence)<<1);
+        List<Long> allUids = new ArrayList<>((int) (getMaxSequence() - startSequence) << 1);
         allUids.add(startUid);
         for (long i = startSequence; i < getMaxSequence(); i++) {
             allUids.add(startSequence + i);
