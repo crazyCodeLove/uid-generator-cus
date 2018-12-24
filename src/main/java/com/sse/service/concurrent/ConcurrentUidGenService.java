@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author ZHAOPENGCHENG
@@ -26,7 +28,12 @@ public class ConcurrentUidGenService implements UidGenerator {
     /**
      * 根据当前时间和序列做分段锁;
      */
-    private volatile ConcurrentHashMap<Long, CalculateStartStatus> timestampStatus = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Long, AtomicReference<CalculateStartStatus>> timestampStatus = new ConcurrentHashMap<>();
+
+    /**
+     * 使用 getUidBatch 方法的线程数量统计
+     */
+    private volatile AtomicInteger calThreadCount = new AtomicInteger(0);
 
     @Override
     public long getUid() throws RTException {
@@ -38,82 +45,61 @@ public class ConcurrentUidGenService implements UidGenerator {
         if (batchNumber <= 0) {
             batchNumber = 1;
         }
+        calThreadCount.getAndIncrement();
         List<Long> result = new ArrayList<>(batchNumber * 2);
         List<UidBatchSequenceRange> needToMake = new ArrayList<>();
         do {
             long currentMilliSecond = uidGenBase.getCurrentMilliSecond();
-            if (timestampStatus.contains(currentMilliSecond)) {
-                // 已经有线程使用当前时间进行计算了
-
-                synchronized (timestampStatus.get(currentMilliSecond)) {
-                    long recoveMilliSecond = uidGenBase.getCurrentMilliSecond();
-                    if (recoveMilliSecond == currentMilliSecond) {
-                        // 恢复时间还是挂起的时间
-                        CalculateStartStatus calculateStatus = timestampStatus.get(currentMilliSecond);
-                        long availableUidNumber = uidGenBase.getBitsAllocate().getMaxSequence() - calculateStatus.getStartSequence() + 1;
-                        UidBatchSequenceRange uidBatchSequenceRange;
-                        if (batchNumber >= availableUidNumber) {
-                            // 需要的 >= 可提供的，序列号不够使用
-                            uidBatchSequenceRange = new UidBatchSequenceRange(
-                                    calculateStatus.getStartTimestamp(),
-                                    uidGenBase.getWorkNodeId(),
-                                    calculateStatus.getStartSequence(),
-                                    uidGenBase.getBitsAllocate().getMaxSequence());
-                            calculateStatus.setStartSequence(availableUidNumber);
-                            batchNumber -= availableUidNumber;
-                            uidGenBase.getNextMilliSecond(currentMilliSecond);
-                        } else {
-                            // 需要的 < 可提供的，还有冗余
-                            uidBatchSequenceRange = new UidBatchSequenceRange(
-                                    calculateStatus.getStartTimestamp(),
-                                    uidGenBase.getWorkNodeId(),
-                                    calculateStatus.getStartSequence(),
-                                    calculateStatus.getStartSequence() + batchNumber - 1);
-                            calculateStatus.setStartSequence(calculateStatus.getStartSequence() + batchNumber);
-                            batchNumber = 0;
-                        }
-                        needToMake.add(uidBatchSequenceRange);
-                        // 处理完后，当前时间节点已经超过了计算的时间节点。将计算的时间节点移除
-                        if (uidGenBase.getCurrentMilliSecond() > calculateStatus.getStartTimestamp()) {
-                            timestampStatus.remove(calculateStatus.getStartTimestamp());
-                        }
-                    } else {
-                        timestampStatus.remove(currentMilliSecond);
-                    }
+            CalculateStartStatus calStartStatus;
+            AtomicReference<CalculateStartStatus> calStartStatusRef = timestampStatus.get(currentMilliSecond);
+            if (calStartStatusRef == null) {
+                // 当前时间还没有被使用
+                calStartStatus = new CalculateStartStatus(currentMilliSecond, 0L);
+                calStartStatusRef = new AtomicReference<>(calStartStatus);
+                AtomicReference<CalculateStartStatus> putResult = timestampStatus.putIfAbsent(currentMilliSecond, calStartStatusRef);
+                if (putResult != null) {//没有添加成功
+                    continue;
                 }
             } else {
-                CalculateStartStatus calculateStatus = new CalculateStartStatus(currentMilliSecond, 0L);
-                CalculateStartStatus putStatus = timestampStatus.putIfAbsent(currentMilliSecond, calculateStatus);
-                if (putStatus != null) {
-                    // 插入成功
-                    // at current time available sequence number
-                    long availableUidNumber = uidGenBase.getBitsAllocate().getMaxSequence() - calculateStatus.getStartSequence() + 1;
-                    UidBatchSequenceRange uidBatchSequenceRange;
-                    if (batchNumber >= availableUidNumber) {
-                        // 需要的 >= 可提供的，序列号不够使用
-                        uidBatchSequenceRange = new UidBatchSequenceRange(
-                                calculateStatus.getStartTimestamp(),
-                                uidGenBase.getWorkNodeId(),
-                                calculateStatus.getStartSequence(),
-                                uidGenBase.getBitsAllocate().getMaxSequence());
-                        calculateStatus.setStartSequence(availableUidNumber);
-                        batchNumber -= availableUidNumber;
-                        uidGenBase.getNextMilliSecond(currentMilliSecond);
-                    } else {
-                        // 需要的 < 可提供的，还有冗余
-                        uidBatchSequenceRange = new UidBatchSequenceRange(
-                                calculateStatus.getStartTimestamp(),
-                                uidGenBase.getWorkNodeId(),
-                                calculateStatus.getStartSequence(),
-                                calculateStatus.getStartSequence() + batchNumber - 1);
-                        calculateStatus.setStartSequence(calculateStatus.getStartSequence() + batchNumber);
-                        batchNumber = 0;
-                    }
+                calStartStatus = calStartStatusRef.get();
+            }
+            // 成功获取 calStartStatus
+            long availableUidNumber = uidGenBase.getBitsAllocate().getMaxSequence() - calStartStatus.getStartSequence() + 1;
+            if (availableUidNumber == 0) {
+                // 当前时间的可用序列为0，需要等到下个时间序列
+                uidGenBase.getNextMilliSecond(calStartStatus.getStartTimestamp());
+                continue;
+            }
+            UidBatchSequenceRange uidBatchSequenceRange;
+            if (batchNumber >= availableUidNumber) {
+                // 需要的 >= 可提供的，序列号不够使用
+                uidBatchSequenceRange = new UidBatchSequenceRange(
+                        calStartStatus.getStartTimestamp(),
+                        uidGenBase.getWorkNodeId(),
+                        calStartStatus.getStartSequence(),
+                        uidGenBase.getBitsAllocate().getMaxSequence());
+                CalculateStartStatus calEndStatus = new CalculateStartStatus(
+                        calStartStatus.getStartTimestamp(),
+                        uidGenBase.getBitsAllocate().getMaxSequence() + 1);
+                if (calStartStatusRef.compareAndSet(calStartStatus, calEndStatus)) {
+                    // 替换成功
+                    batchNumber -= availableUidNumber;
                     needToMake.add(uidBatchSequenceRange);
-                    // 处理完后，当前时间节点已经超过了计算的时间节点。将计算的时间节点移除
-                    if (uidGenBase.getCurrentMilliSecond() > calculateStatus.getStartTimestamp()) {
-                        timestampStatus.remove(calculateStatus.getStartTimestamp());
-                    }
+                }
+            } else {
+                // 需要的 < 可提供的，还有冗余
+                uidBatchSequenceRange = new UidBatchSequenceRange(
+                        calStartStatus.getStartTimestamp(),
+                        uidGenBase.getWorkNodeId(),
+                        calStartStatus.getStartSequence(),
+                        calStartStatus.getStartSequence() + batchNumber - 1);
+                CalculateStartStatus calEndStatus = new CalculateStartStatus(
+                        calStartStatus.getStartTimestamp(),
+                        calStartStatus.getStartSequence() + batchNumber);
+                if (calStartStatusRef.compareAndSet(calStartStatus, calEndStatus)) {
+                    // 替换成功
+                    batchNumber = 0;
+                    needToMake.add(uidBatchSequenceRange);
                 }
             }
         } while (batchNumber > 0);
@@ -122,40 +108,9 @@ public class ConcurrentUidGenService implements UidGenerator {
             List<Long> uidBatch = uidGenBase.getUidBatch(range);
             result.addAll(uidBatch);
         }
+        calThreadCount.getAndDecrement();
         return result;
     }
-
-    public int fillUidBatchSequenceRange(int batchNumber, CalculateStartStatus calculateStatus, long currentMilliSecond, List<UidBatchSequenceRange> needToMake) {
-        long availableUidNumber = uidGenBase.getBitsAllocate().getMaxSequence() - calculateStatus.getStartSequence() + 1;
-        UidBatchSequenceRange uidBatchSequenceRange;
-        if (batchNumber >= availableUidNumber) {
-            // 需要的 >= 可提供的，序列号不够使用
-            uidBatchSequenceRange = new UidBatchSequenceRange(
-                    calculateStatus.getStartTimestamp(),
-                    uidGenBase.getWorkNodeId(),
-                    calculateStatus.getStartSequence(),
-                    uidGenBase.getBitsAllocate().getMaxSequence());
-            calculateStatus.setStartSequence(availableUidNumber);
-            batchNumber -= availableUidNumber;
-            uidGenBase.getNextMilliSecond(currentMilliSecond);
-        } else {
-            // 需要的 < 可提供的，还有冗余
-            uidBatchSequenceRange = new UidBatchSequenceRange(
-                    calculateStatus.getStartTimestamp(),
-                    uidGenBase.getWorkNodeId(),
-                    calculateStatus.getStartSequence(),
-                    calculateStatus.getStartSequence() + batchNumber - 1);
-            calculateStatus.setStartSequence(calculateStatus.getStartSequence() + batchNumber);
-            batchNumber = 0;
-        }
-        needToMake.add(uidBatchSequenceRange);
-        // 处理完后，当前时间节点已经超过了计算的时间节点。将计算的时间节点移除
-        if (uidGenBase.getCurrentMilliSecond() > calculateStatus.getStartTimestamp()) {
-            timestampStatus.remove(calculateStatus.getStartTimestamp());
-        }
-        return batchNumber;
-    }
-
 
     @Override
     public String parseUid(long uid) {

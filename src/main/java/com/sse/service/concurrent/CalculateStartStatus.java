@@ -1,6 +1,6 @@
 package com.sse.service.concurrent;
 
-import lombok.Data;
+import lombok.Getter;
 
 /**
  * @author ZHAOPENGCHENG
@@ -8,10 +8,10 @@ import lombok.Data;
  * @date 2018-12-23 11:19
  */
 
-@Data
+@Getter
 public class CalculateStartStatus {
-    private long startTimestamp;
-    private long startSequence;
+    private final long startTimestamp;
+    private final long startSequence;
 
     public CalculateStartStatus(long startTimestamp, long startSequence) {
         this.startTimestamp = startTimestamp;

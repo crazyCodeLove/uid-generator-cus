@@ -81,7 +81,7 @@ public class DefaultUidGenServiceTest {
     @Test
     public void getUidBatchParallelTest() throws InterruptedException {
         long startTime = System.currentTimeMillis();
-        int batchSize = 500;
+        int batchSize = 1000;
         System.out.println("threads:" + THREADS);
         AtomicInteger control = new AtomicInteger(-1);
         Set<Long> uidSet = new ConcurrentSkipListSet<>();
