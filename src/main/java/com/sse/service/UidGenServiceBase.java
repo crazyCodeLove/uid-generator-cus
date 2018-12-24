@@ -49,9 +49,9 @@ public class UidGenServiceBase implements InitializingBean {
     private int workNodeId;
 
     /**
-     * 每隔 10分钟 更新一下当前 workNodeId 的访问时间
+     * 每隔 20分钟 更新一下当前 workNodeId 的访问时间
      */
-    @Scheduled(cron = "0 0/10 * * * ?")
+    @Scheduled(cron = "0 0/20 * * * ?")
     public void updateWorkNodeIdAccessTime() {
         workNodeService.updateWorkNodeAccessTime(workNodeId);
     }

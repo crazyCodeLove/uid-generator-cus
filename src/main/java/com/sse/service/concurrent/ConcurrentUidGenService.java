@@ -5,10 +5,13 @@ import com.sse.model.UidBatchSequenceRange;
 import com.sse.service.UidGenServiceBase;
 import com.sse.uid.UidGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -26,18 +29,18 @@ public class ConcurrentUidGenService implements UidGenerator {
     private UidGenServiceBase uidGenBase;
 
     /**
-     * 根据当前时间和序列做分段锁;
+     * 根据当前时间设置 原子变量开始计算状态
      */
-    private ConcurrentHashMap<Long, AtomicReference<CalculateStartStatus>> timestampStatus = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Long, AtomicReference<CalculateStartStatus>> timestampStatusMap = new ConcurrentHashMap<>();
 
     /**
      * 使用 getUidBatch 方法的线程数量统计
      */
-    private volatile AtomicInteger calThreadCount = new AtomicInteger(0);
+    private AtomicInteger calThreadCount = new AtomicInteger(0);
 
     @Override
     public long getUid() throws RTException {
-        return 0;
+        return getUidBatch(1).get(0);
     }
 
     @Override
@@ -51,12 +54,12 @@ public class ConcurrentUidGenService implements UidGenerator {
         do {
             long currentMilliSecond = uidGenBase.getCurrentMilliSecond();
             CalculateStartStatus calStartStatus;
-            AtomicReference<CalculateStartStatus> calStartStatusRef = timestampStatus.get(currentMilliSecond);
+            AtomicReference<CalculateStartStatus> calStartStatusRef = timestampStatusMap.get(currentMilliSecond);
             if (calStartStatusRef == null) {
                 // 当前时间还没有被使用
                 calStartStatus = new CalculateStartStatus(currentMilliSecond, 0L);
                 calStartStatusRef = new AtomicReference<>(calStartStatus);
-                AtomicReference<CalculateStartStatus> putResult = timestampStatus.putIfAbsent(currentMilliSecond, calStartStatusRef);
+                AtomicReference<CalculateStartStatus> putResult = timestampStatusMap.putIfAbsent(currentMilliSecond, calStartStatusRef);
                 if (putResult != null) {//没有添加成功
                     continue;
                 }
@@ -114,6 +117,23 @@ public class ConcurrentUidGenService implements UidGenerator {
 
     @Override
     public String parseUid(long uid) {
-        return null;
+        return uidGenBase.parseUid(uid);
+    }
+
+    /**
+     * 每隔 1 分钟清理一次过期时间
+     */
+    @Scheduled(cron = "0 0/1 * * * ?")
+    public void removeInvalidateTimeStatusMap() {
+        if (calThreadCount.get() == 0 && timestampStatusMap.size() >0) {
+            long currentMilliSecond = uidGenBase.getCurrentMilliSecond();
+            Iterator<Map.Entry<Long, AtomicReference<CalculateStartStatus>>> it = timestampStatusMap.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<Long, AtomicReference<CalculateStartStatus>> next = it.next();
+                if (currentMilliSecond > next.getKey()) {
+                    it.remove();
+                }
+            }
+        }
     }
 }
