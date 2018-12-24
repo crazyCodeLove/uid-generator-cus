@@ -28,7 +28,7 @@ public class ConcurrentUidGenServiceTest {
 
 
     @Autowired
-    @Qualifier(value = "ConcurrentUidGenService")
+    @Qualifier(value = "UidGenService")
     private UidGenerator uidGenService;
 
     private final int COUNT = 10000000; // 1000w 测试生成数量
@@ -65,6 +65,7 @@ public class ConcurrentUidGenServiceTest {
         for (Thread thread : threadList) {
             thread.join();
         }
+        System.out.println(uidSet.size());
         Assert.assertEquals(COUNT, uidSet.size());
         System.out.println("last time(ms):" + (System.currentTimeMillis() - startTime));
     }
