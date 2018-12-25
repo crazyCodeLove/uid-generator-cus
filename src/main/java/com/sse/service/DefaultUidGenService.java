@@ -4,6 +4,7 @@ import com.sse.exception.RTException;
 import com.sse.exception.UidGenerateException;
 import com.sse.model.UidBatchSequenceRange;
 import com.sse.uid.UidGenerator;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import java.util.List;
 @Service(value = "DefaultUidGenService")
 public class DefaultUidGenService implements UidGenerator {
 
+    @Getter
     @Autowired
     private UidGenServiceBase uidGenBase;
 

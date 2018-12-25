@@ -1,9 +1,10 @@
 package com.sse.service;
 
 import com.sse.exception.RTException;
+import com.sse.service.concurrent.ConcurrentUidGenService;
 import com.sse.uid.UidGenerator;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,13 +23,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class UidGenService implements UidGenerator {
     private static final int START_MULTI_THREAD_BATCH_NUMBER_THREASHOLD = 10000;
 
+    @Getter
     @Autowired
-    @Qualifier("DefaultUidGenService")
-    private UidGenerator singleThreadGen;
+    private DefaultUidGenService defUidGenService;
 
+    @Getter
     @Autowired
-    @Qualifier("ConcurrentUidGenService")
-    private UidGenerator multiThreadGen;
+    private ConcurrentUidGenService conUidGenService;
 
 
     @Override
@@ -44,7 +45,7 @@ public class UidGenService implements UidGenerator {
         int processorsNum = Runtime.getRuntime().availableProcessors();
 
         if (batchNumber <= START_MULTI_THREAD_BATCH_NUMBER_THREASHOLD || processorsNum < 10) {
-            return singleThreadGen.getUidBatch(batchNumber);
+            return defUidGenService.getUidBatch(batchNumber);
         } else {
             int THREADS = Math.max(processorsNum << 1, 1);
             List<Long> result = new ArrayList<>(batchNumber << 1);
@@ -58,7 +59,7 @@ public class UidGenService implements UidGenerator {
             }
             result.addAll(tuids);
             if (batchNumber > result.size()) {
-                result.addAll(singleThreadGen.getUidBatch(batchNumber - result.size()));
+                result.addAll(defUidGenService.getUidBatch(batchNumber - result.size()));
             }
             return result;
         }
@@ -66,7 +67,7 @@ public class UidGenService implements UidGenerator {
 
     @Override
     public String parseUid(long uid) {
-        return singleThreadGen.parseUid(uid);
+        return defUidGenService.parseUid(uid);
     }
 
     /**
@@ -117,6 +118,6 @@ public class UidGenService implements UidGenerator {
      * @param batch
      */
     private void generateUidBatch(Set<Long> uids, int batch) {
-        uids.addAll(multiThreadGen.getUidBatch(batch));
+        uids.addAll(conUidGenService.getUidBatch(batch));
     }
 }

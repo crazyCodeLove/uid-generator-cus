@@ -4,6 +4,7 @@ import com.sse.exception.RTException;
 import com.sse.model.UidBatchSequenceRange;
 import com.sse.service.UidGenServiceBase;
 import com.sse.uid.UidGenerator;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @Service(value = "ConcurrentUidGenService")
 public class ConcurrentUidGenService implements UidGenerator {
 
+    @Getter
     @Autowired
     private UidGenServiceBase uidGenBase;
 
@@ -125,7 +127,7 @@ public class ConcurrentUidGenService implements UidGenerator {
      */
     @Scheduled(cron = "0 0/1 * * * ?")
     public void removeInvalidateTimeStatusMap() {
-        if (calThreadCount.get() == 0 && timestampStatusMap.size() >0) {
+        if (calThreadCount.get() == 0 && timestampStatusMap.size() > 0) {
             long currentMilliSecond = uidGenBase.getCurrentMilliSecond();
             Iterator<Map.Entry<Long, AtomicReference<CalculateStartStatus>>> it = timestampStatusMap.entrySet().iterator();
             while (it.hasNext()) {

@@ -26,7 +26,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @SpringBootTest
 public class ConcurrentUidGenServiceTest {
 
-
     @Autowired
     @Qualifier(value = "UidGenService")
     private UidGenerator uidGenService;
