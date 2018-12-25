@@ -1,7 +1,7 @@
 package com.sse.service;
 
 import com.sse.exception.RTException;
-import com.sse.service.catche.RingBuffer;
+import com.sse.service.cache.RingBuffer;
 import com.sse.uid.UidGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import java.util.List;
  * @date 2018-12-24 20:18
  */
 
-@Service(value = "CatchedUidGenService")
+@Service(value = "CachedUidGenService")
 public class CachedUidGenService implements UidGenerator {
 
     @Autowired

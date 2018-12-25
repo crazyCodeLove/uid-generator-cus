@@ -1,4 +1,4 @@
-package com.sse.service.catche;
+package com.sse.service.cache;
 
 import com.sse.service.UidGenService;
 import com.sse.service.UidGenServiceBase;
@@ -7,6 +7,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -25,7 +26,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component("RingBuffer")
 public class RingBuffer implements InitializingBean, DisposableBean {
     public static final int DEFAULT_BOOST_POWER = 3;
-    public static final int SLOTS_COUNT = 1 << 3; // slots 数量
+    public static final int DEFAULT_PADDING_PERCENT = 70; // 定期扫描到，该 slot 已经使用了 80% 后需要进行补充
+    public static final int SLOTS_COUNT = 1 << 4; // slots 数量
 
     private long[][] slots;//缓存的 uid
     private AtomicInteger[] startIndex = new AtomicInteger[SLOTS_COUNT];// 可使用的缓存 uid 起始地址
@@ -59,6 +61,26 @@ public class RingBuffer implements InitializingBean, DisposableBean {
             }
         }
         return uidGenService.getUidBatch(batchSize);
+    }
+
+    /**
+     * 每隔 1 分钟进行一次检查
+     */
+    @Scheduled(cron = "0 0/1 * * * ?")
+    public void scheduleFillSlots() {
+        int slotsIndex;
+        boolean hasSlotsNeedReload = false;
+        for (slotsIndex = 0; slotsIndex < SLOTS_COUNT; slotsIndex++) {
+            if (!fillingSlots[slotsIndex].get() &&
+                    (startIndex[slotsIndex].get() / slots[slotsIndex].length) > DEFAULT_PADDING_PERCENT) {
+                // 当前 slot 没有被填充，并且消耗的 uid 超过 80%
+                fillingSlots[slotsIndex].set(true);
+                hasSlotsNeedReload = true;
+            }
+        }
+        if (hasSlotsNeedReload) {
+            bufferPaddingExecutor.asyncPadding();
+        }
     }
 
     @Override
@@ -115,5 +137,6 @@ public class RingBuffer implements InitializingBean, DisposableBean {
             }
             Assert.isTrue(index == slots[i].length, "init slots failed");
         }
+
     }
 }
