@@ -44,6 +44,7 @@ public class UidGenService implements UidGenerator {
         }
         int processorsNum = Runtime.getRuntime().availableProcessors();
 
+        /** 需要的 uid 数量不大于 START_MULTI_THREAD_BATCH_NUMBER_THREASHOLD 或者 处理器数量小于 10， 使用抢锁的方式生成 uid */
         if (batchNumber <= START_MULTI_THREAD_BATCH_NUMBER_THREASHOLD || processorsNum < 10) {
             return defUidGenService.getUidBatch(batchNumber);
         } else {
