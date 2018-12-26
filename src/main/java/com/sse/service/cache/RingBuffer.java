@@ -41,6 +41,7 @@ public class RingBuffer implements InitializingBean, DisposableBean {
 
     /**
      * 从 Ringbuffer 中获取或者新生成 batchSize 个 uid
+     *
      * @param batchSize
      * @return
      */
@@ -67,7 +68,6 @@ public class RingBuffer implements InitializingBean, DisposableBean {
         }
         return uidGenService.getUidBatch(batchSize);
     }
-
 
     /**
      * 扫描并填充需要填充的 slots
