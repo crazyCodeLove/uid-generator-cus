@@ -1,3 +1,7 @@
+CREATE DATABASE /*!32312 IF NOT EXISTS*/`snowflakecus` /*!40100 DEFAULT CHARACTER SET utf8 */;
+
+/*Table structure for table `work_node` */
+
 DROP TABLE IF EXISTS `work_node`;
 
 CREATE TABLE `work_node` (
@@ -10,4 +14,4 @@ CREATE TABLE `work_node` (
   `LAST_UPDATE_TIME` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'last update time',
   PRIMARY KEY (`ID`),
   UNIQUE KEY `WORK_NODE_ID` (`WORK_NODE_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=75 DEFAULT CHARSET=utf8 COMMENT='DB WorkerID Assigner for UID Generator';
+) ENGINE=InnoDB AUTO_INCREMENT=129 DEFAULT CHARSET=utf8 COMMENT='DB WorkerID Assigner for UID Generator';
