@@ -49,9 +49,9 @@ public class UidGenServiceBase implements InitializingBean {
     private int workNodeId;
 
     /**
-     * 每隔 20分钟 更新一下当前 workNodeId 的访问时间
+     * 每隔 40分钟 更新一下当前 workNodeId 的访问时间
      */
-    @Scheduled(cron = "0 0/20 * * * ?")
+    @Scheduled(cron = "0 0/40 * * * ?")
     public void updateWorkNodeIdAccessTime() {
         workNodeService.updateWorkNodeAccessTime(workNodeId);
     }
@@ -59,7 +59,7 @@ public class UidGenServiceBase implements InitializingBean {
     /**
      * 每隔一小时清理一次无效的 workNodeId。上次访问时间超过了默认的 INVALID_WORK_NODE_MAX_LAST_TIME_MINUTE = 60 分钟
      */
-    @Scheduled(cron = "0 0 0/1 * * ?")
+    @Scheduled(cron = "0 0 0/2 * * ?")
     public void removeInvalidateWorkNode() {
         List<WorkNodeEntity> allWorkNode = workNodeService.getAllWorkNodeLastUpdateTime();
         for (WorkNodeEntity entity : allWorkNode) {
