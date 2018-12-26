@@ -64,6 +64,7 @@ public class LogParamAspect {
         sb.append("; args:");
         sb.append(Arrays.toString(point.getArgs()));
         log.info(sb.toString());
+        System.out.println(sb);
 
         Object result = null;
         try {
@@ -80,6 +81,9 @@ public class LogParamAspect {
             sb.append("; cost time(ms):");
             sb.append(System.currentTimeMillis() - startTime);
             log.info(sb.toString());
+            if (sb.length() < 1024) {
+                System.out.println(sb);
+            }
         }
         return result;
     }
