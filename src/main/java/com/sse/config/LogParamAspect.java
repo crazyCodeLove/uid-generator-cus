@@ -3,6 +3,7 @@ package com.sse.config;
 import com.alibaba.fastjson.JSON;
 import com.sse.model.RequestParamBase;
 import com.sse.model.RequestParamHolder;
+import com.sse.util.DateTimeUtil;
 import com.sse.util.IpUtil;
 import com.sse.util.ValidateUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
+import java.util.Date;
 
 /**
  * @author ZHAOPENGCHENG
@@ -64,6 +66,8 @@ public class LogParamAspect {
         sb.append("; args:");
         sb.append(Arrays.toString(point.getArgs()));
         log.info(sb.toString());
+        System.out.print(DateTimeUtil.formatByDateTimeMsPattern(new Date()));
+        System.out.print(" ");
         System.out.println(sb);
 
         Object result = null;
@@ -82,6 +86,8 @@ public class LogParamAspect {
             sb.append(System.currentTimeMillis() - startTime);
             log.info(sb.toString());
             if (sb.length() < 1024) {
+                System.out.print(DateTimeUtil.formatByDateTimeMsPattern(new Date()));
+                System.out.print(" ");
                 System.out.println(sb);
             }
         }

@@ -9,10 +9,6 @@
     <appender name="fileInfoLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>INFO</level>
-            <!--匹配到就显示日志, level >= INFO-->
-            <onMatch>ACCEPT</onMatch>
-            <!--没有匹配到就不显示-->
-            <onMismatch>DENY</onMismatch>
         </filter>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${log_home}/info-log-%d{yyyy-MM-dd}-${HOSTNAME}.log</fileNamePattern>
