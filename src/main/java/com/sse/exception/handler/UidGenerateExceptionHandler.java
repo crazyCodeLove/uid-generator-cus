@@ -37,7 +37,7 @@ public class UidGenerateExceptionHandler {
      */
     @ExceptionHandler(value = RuntimeException.class)
     public ResponseResultHolder RuntimeExceptHandler(RuntimeException e) {
-        e.printStackTrace();
+        log.error(e.getMessage(), e);
         return ResponseResultHolder.builder().error(new ResponseResultHolder.ResponseError(500, "server internal error, engineers are rushing to repair ...")).build();
     }
 
