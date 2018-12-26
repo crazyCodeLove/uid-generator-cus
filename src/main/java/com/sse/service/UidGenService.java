@@ -1,6 +1,6 @@
 package com.sse.service;
 
-import com.sse.exception.RTException;
+import com.sse.exception.RTExceptionBase;
 import com.sse.service.concurrent.ConcurrentUidGenService;
 import com.sse.uid.UidGenerator;
 import lombok.Getter;
@@ -33,12 +33,12 @@ public class UidGenService implements UidGenerator {
 
 
     @Override
-    public long getUid() throws RTException {
+    public long getUid() throws RTExceptionBase {
         return getUidBatch(1).get(0);
     }
 
     @Override
-    public List<Long> getUidBatch(int batchNumber) throws RTException {
+    public List<Long> getUidBatch(int batchNumber) throws RTExceptionBase {
         if (batchNumber <= 0) {
             batchNumber = 1;
         }
@@ -56,7 +56,7 @@ public class UidGenService implements UidGenerator {
             try {
                 tuids = parallelGenUid(THREADS, batchSize, executeNum);
             } catch (InterruptedException e) {
-                throw new RTException(e);
+                throw new RTExceptionBase(e);
             }
             result.addAll(tuids);
             if (batchNumber > result.size()) {

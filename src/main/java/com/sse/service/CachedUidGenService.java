@@ -1,6 +1,6 @@
 package com.sse.service;
 
-import com.sse.exception.RTException;
+import com.sse.exception.RTExceptionBase;
 import com.sse.service.cache.RingBuffer;
 import com.sse.uid.UidGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +21,12 @@ public class CachedUidGenService implements UidGenerator {
     private RingBuffer ringBuffer;
 
     @Override
-    public long getUid() throws RTException {
+    public long getUid() throws RTExceptionBase {
         return getUidBatch(1).get(0);
     }
 
     @Override
-    public List<Long> getUidBatch(int batchNumber) throws RTException {
+    public List<Long> getUidBatch(int batchNumber) throws RTExceptionBase {
         return ringBuffer.take(batchNumber);
     }
 

@@ -6,7 +6,7 @@ package com.sse.exception;
  * @date 2018-12-22 14:36
  */
 
-public class UidBatchSizeOverflowException extends RTException {
+public class UidBatchSizeOverflowException extends ParamRTException {
     public UidBatchSizeOverflowException() {
         super();
     }
@@ -21,5 +21,9 @@ public class UidBatchSizeOverflowException extends RTException {
 
     public UidBatchSizeOverflowException(Throwable cause) {
         super(cause);
+    }
+
+    protected UidBatchSizeOverflowException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
     }
 }

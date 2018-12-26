@@ -6,8 +6,7 @@ package com.sse.exception;
  * @date 2018-12-21 21:32
  */
 
-public class WorkIdOverFlowException extends RTException {
-
+public class WorkIdOverFlowException extends RTExceptionBase {
     public WorkIdOverFlowException() {
         super();
     }
@@ -22,5 +21,9 @@ public class WorkIdOverFlowException extends RTException {
 
     public WorkIdOverFlowException(Throwable cause) {
         super(cause);
+    }
+
+    protected WorkIdOverFlowException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
     }
 }

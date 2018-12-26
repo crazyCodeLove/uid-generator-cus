@@ -1,6 +1,6 @@
 package com.sse.util;
 
-import com.sse.exception.RTException;
+import com.sse.exception.ParseDateTimeException;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
@@ -56,7 +56,7 @@ public class DateTimeUtil extends DateUtils {
         try {
             return parseDate(str, new String[]{pattern});
         } catch (ParseException e) {
-            throw new RTException(e);
+            throw new ParseDateTimeException(e);
         }
     }
 

@@ -1,6 +1,6 @@
 package com.sse.service.concurrent;
 
-import com.sse.exception.RTException;
+import com.sse.exception.RTExceptionBase;
 import com.sse.model.UidBatchSequenceRange;
 import com.sse.service.UidGenServiceBase;
 import com.sse.uid.UidGenerator;
@@ -41,12 +41,12 @@ public class ConcurrentUidGenService implements UidGenerator {
     private AtomicInteger calThreadCount = new AtomicInteger(0);
 
     @Override
-    public long getUid() throws RTException {
+    public long getUid() throws RTExceptionBase {
         return getUidBatch(1).get(0);
     }
 
     @Override
-    public List<Long> getUidBatch(int batchNumber) throws RTException {
+    public List<Long> getUidBatch(int batchNumber) throws RTExceptionBase {
         if (batchNumber <= 0) {
             batchNumber = 1;
         }

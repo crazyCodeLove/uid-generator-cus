@@ -1,0 +1,4 @@
+1.0.0-SNAPSHOT
+使用 RingBuffer 缓存可以使用的 uid
+使用 log 记录访问记录和返回结果
+全局统一异常处理

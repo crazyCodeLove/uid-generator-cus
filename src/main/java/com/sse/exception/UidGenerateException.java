@@ -7,7 +7,7 @@ package com.sse.exception;
  * @date 2018-12-21 8:43
  */
 
-public class UidGenerateException extends RTException {
+public class UidGenerateException extends RTExceptionBase {
     public UidGenerateException() {
         super();
     }
@@ -22,5 +22,9 @@ public class UidGenerateException extends RTException {
 
     public UidGenerateException(Throwable cause) {
         super(cause);
+    }
+
+    protected UidGenerateException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
     }
 }

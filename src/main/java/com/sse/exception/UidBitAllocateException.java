@@ -6,7 +6,7 @@ package com.sse.exception;
  * @date 2018-12-21 23:25
  */
 
-public class UidBitAllocateException extends RTException {
+public class UidBitAllocateException extends RTExceptionBase {
     public UidBitAllocateException() {
         super();
     }
@@ -21,5 +21,9 @@ public class UidBitAllocateException extends RTException {
 
     public UidBitAllocateException(Throwable cause) {
         super(cause);
+    }
+
+    protected UidBitAllocateException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
     }
 }

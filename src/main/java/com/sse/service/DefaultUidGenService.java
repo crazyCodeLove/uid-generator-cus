@@ -1,6 +1,6 @@
 package com.sse.service;
 
-import com.sse.exception.RTException;
+import com.sse.exception.RTExceptionBase;
 import com.sse.exception.UidGenerateException;
 import com.sse.model.UidBatchSequenceRange;
 import com.sse.uid.UidGenerator;
@@ -36,7 +36,7 @@ public class DefaultUidGenService implements UidGenerator {
 
 
     @Override
-    public synchronized long getUid() throws RTException {
+    public synchronized long getUid() throws RTExceptionBase {
         long currentMilliSecond = uidGenBase.getCurrentMilliSecond();
         // Clock moved backwards, refuse to generate uid
         long result = 0;
@@ -68,10 +68,10 @@ public class DefaultUidGenService implements UidGenerator {
      *
      * @param batchNumber
      * @return
-     * @throws RTException
+     * @throws RTExceptionBase
      */
     @Override
-    public List<Long> getUidBatch(int batchNumber) throws RTException {
+    public List<Long> getUidBatch(int batchNumber) throws RTExceptionBase {
         if (batchNumber <= 0) {
             batchNumber = 1;
         }

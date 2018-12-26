@@ -1,7 +1,8 @@
 package com.sse.controller;
 
 import com.sse.controller.param.BatchUidParam;
-import com.sse.exception.RTException;
+import com.sse.model.RequestParamHolder;
+import com.sse.model.ResponseResultHolder;
 import com.sse.service.CachedUidGenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,22 +24,15 @@ public class UidGeneratorController {
     @Autowired
     private CachedUidGenService uidGenService;
 
-    @RequestMapping(value = "/single", method = RequestMethod.GET)
-    public long getUid() {
-        return uidGenService.getUid();
-    }
-
     @RequestMapping(value = "/batch", method = RequestMethod.POST)
-    public List<Long> getUidBatch(@RequestBody BatchUidParam param) {
-        if (param == null) {
-            param = BatchUidParam.builder().batchSize(1).build();
+    public ResponseResultHolder<List<Long>> getUidBatch(@RequestBody RequestParamHolder<BatchUidParam> uidBatchParam) {
+        if (uidBatchParam.getParam() == null) {
+            uidBatchParam = new RequestParamHolder<>();
+            uidBatchParam.setParam(BatchUidParam.builder().batchSize(1).build());
         }
-        if (param.getBatchSize() <= 0) {
-            param.setBatchSize(1);
-        }
-        if (param.getBatchSize() > 100000) {
-            throw new RTException("batch size over flow, try less than 100000");
-        }
-        return uidGenService.getUidBatch(param.getBatchSize());
+        ResponseResultHolder<List<Long>> result = new ResponseResultHolder<>();
+        List<Long> uids = uidGenService.getUidBatch(uidBatchParam.getParam().getBatchSize());
+        result.setResult(uids);
+        return result;
     }
 }
