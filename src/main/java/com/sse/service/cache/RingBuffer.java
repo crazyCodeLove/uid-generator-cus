@@ -108,7 +108,8 @@ public class RingBuffer implements InitializingBean, DisposableBean {
                 int startFillIndex = 0;
                 do {
                     reTryCount++;
-                    if (reTryCount == 4) {
+                    if (reTryCount == 4 || fillingSlots[slotsIndex].get()) {
+                        // 重试次数超过 3 次，或者在填充过程中该变了填充状态为 true
                         break;
                     }
                     si = startIndex[slotsIndex].get();
