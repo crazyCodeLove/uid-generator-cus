@@ -10,7 +10,7 @@ CREATE TABLE `work_node` (
   `PORT` varchar(64) NOT NULL COMMENT 'port',
   `WORK_NODE_ID` int(11) NOT NULL COMMENT 'work node id',
   `LAUNCH_DATE` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'launch date',
-  `STATUS` varchar(3) NOT NULL COMMENT 'server status, on or off',
+  `STATUS` varchar(10) NOT NULL COMMENT 'server status, on or off',
   `LAST_UPDATE_TIME` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'last update time',
   PRIMARY KEY (`ID`),
   UNIQUE KEY `WORK_NODE_ID` (`WORK_NODE_ID`)
