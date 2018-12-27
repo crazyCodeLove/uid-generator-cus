@@ -1,5 +1,7 @@
 CREATE DATABASE /*!32312 IF NOT EXISTS*/`snowflakecus` /*!40100 DEFAULT CHARACTER SET utf8 */;
 
+USE `snowflakecus`;
+
 /*Table structure for table `work_node` */
 
 DROP TABLE IF EXISTS `work_node`;
