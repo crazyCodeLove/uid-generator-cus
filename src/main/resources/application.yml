@@ -20,7 +20,7 @@ eureka:
     registerWithEureka: true
     fetchRegistry: true
     serviceUrl:
-      defaultZone: http://${eureka.instance.hostname}:${eureka.port:8010}/eureka/
+      defaultZone: http://${eureka.server.ip:127.0.0.1}:${eureka.server.port:8010}/eureka/
 
 mybatis:
   mapper-locations: classpath*:mapper/*.xml
