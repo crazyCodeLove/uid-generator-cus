@@ -82,7 +82,7 @@ public class LogParamAspect {
             sb.append("; cost time(ms):");
             sb.append(System.currentTimeMillis() - startTime);
             log.info(sb.toString());
-            if (sb.length() < 1024) {
+            if (sb.length() < 600) {
                 System.out.print(DateTimeUtil.formatByDateTimeMsPattern(new Date()) + " " + sb);
             }
         }
