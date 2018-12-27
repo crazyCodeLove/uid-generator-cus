@@ -7,6 +7,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -76,6 +77,7 @@ public class RingBuffer implements InitializingBean, DisposableBean {
         int slotsIndex;
         for (slotsIndex = 0; slotsIndex < SLOTS_COUNT; slotsIndex++) {
             if (fillingSlots[slotsIndex].get() && startIndex[slotsIndex].get() > 0) {
+                // 设置了状态标志 fillingSlots[slotsIndex]，并已经使用了
                 int si;
                 int startFillIndex = 0;
                 do {
@@ -86,6 +88,39 @@ public class RingBuffer implements InitializingBean, DisposableBean {
                     }
                 } while (startIndex[slotsIndex].compareAndSet(si, 0));
                 fillingSlots[slotsIndex].set(false);
+            }
+        }
+    }
+
+    /**
+     * 先填充再试着改变使用数，当并发量大时，可能会失败，并重新尝试。尝试次数最多为 3 次。
+     * 每隔 5分钟 填充一次
+     */
+    @Scheduled(cron = "0 0/2 * * ?")
+    public void scheduleFillSlots() {
+        int slotsIndex;
+        int reTryCount;
+        for (slotsIndex = 0; slotsIndex < SLOTS_COUNT; slotsIndex++) {
+            reTryCount = 0;
+            if (!fillingSlots[slotsIndex].get() && startIndex[slotsIndex].get() <= slots[slotsIndex].length >> 1) {
+                // 没有设置状态标志 fillingSlots[slotsIndex]，并且使用量不超过 1/2 。不改变 fillingSlots[slotsIndex] 状态
+                int si;
+                int startFillIndex = 0;
+                do {
+                    reTryCount++;
+                    if (reTryCount == 4) {
+                        break;
+                    }
+                    si = startIndex[slotsIndex].get();
+                    List<Long> uids = uidGenService.getUidBatch(si - startFillIndex);
+                    for (Long id : uids) {
+                        slots[slotsIndex][startFillIndex++] = id;
+                    }
+                } while (startIndex[slotsIndex].compareAndSet(si, 0));
+                if (startIndex[slotsIndex].get() == 0) {
+                    // 防止在添加过程中有线程将 状态设置成 true
+                    fillingSlots[slotsIndex].compareAndSet(true, false);
+                }
             }
         }
     }
