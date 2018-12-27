@@ -66,10 +66,7 @@ public class LogParamAspect {
         sb.append("; args:");
         sb.append(Arrays.toString(point.getArgs()));
         log.info(sb.toString());
-        System.out.print(DateTimeUtil.formatByDateTimeMsPattern(new Date()));
-        System.out.print(" ");
-        System.out.println(sb);
-
+        System.out.print(DateTimeUtil.formatByDateTimeMsPattern(new Date()) + " " + sb);
         Object result = null;
         try {
             /** 对参数进行统一校验 */
@@ -86,9 +83,7 @@ public class LogParamAspect {
             sb.append(System.currentTimeMillis() - startTime);
             log.info(sb.toString());
             if (sb.length() < 1024) {
-                System.out.print(DateTimeUtil.formatByDateTimeMsPattern(new Date()));
-                System.out.print(" ");
-                System.out.println(sb);
+                System.out.print(DateTimeUtil.formatByDateTimeMsPattern(new Date()) + " " + sb);
             }
         }
         return result;
