@@ -1,4 +1,4 @@
-package com.sse.service;
+package com.sse.uid.service;
 
 import com.sse.uid.UidGenerator;
 import org.junit.Assert;
@@ -10,24 +10,23 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @author ZHAOPENGCHENG
+ * @author pczhao
  * @email
- * @date 2018-12-23 13:08
+ * @date 2018-12-25 15:42
  */
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class ConcurrentUidGenServiceTest {
+public class CachedUidGenServiceTest {
 
     @Autowired
-    @Qualifier(value = "UidGenService")
+    @Qualifier(value = "CachedUidGenService")
     private UidGenerator uidGenService;
 
     private final int COUNT = 10000000; // 1000w 测试生成数量
@@ -35,15 +34,6 @@ public class ConcurrentUidGenServiceTest {
     // 可用线程数
     private final int THREADS = Math.max(Runtime.getRuntime().availableProcessors() << 1, 1);
 
-    @Test
-    public void getUidBatchSerialTest() {
-        long startTime = System.currentTimeMillis();
-        HashSet<Long> uids = new HashSet<>(COUNT);
-        generateUidBatch(uids, COUNT);
-        System.out.println(uids.size());
-        Assert.assertTrue(uids.size() == COUNT);
-        System.out.println("last time(ms):" + (System.currentTimeMillis() - startTime));
-    }
 
     @Test
     public void getUidBatchParallelTest() throws InterruptedException {
@@ -91,4 +81,5 @@ public class ConcurrentUidGenServiceTest {
     private void generateUidBatch(Set<Long> uids, int batch) {
         uids.addAll(uidGenService.getUidBatch(batch));
     }
+
 }

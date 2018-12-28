@@ -1,4 +1,4 @@
-package com.sse.service.concurrent;
+package com.sse.uid.service.concurrent;
 
 import lombok.Getter;
 

@@ -1,8 +1,8 @@
-package com.sse.service.concurrent;
+package com.sse.uid.service.concurrent;
 
 import com.sse.exception.RTExceptionBase;
 import com.sse.model.UidBatchSequenceRange;
-import com.sse.service.UidGenServiceBase;
+import com.sse.uid.service.UidGenServiceBase;
 import com.sse.uid.UidGenerator;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;

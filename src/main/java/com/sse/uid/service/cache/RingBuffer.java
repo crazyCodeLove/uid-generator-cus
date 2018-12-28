@@ -1,7 +1,7 @@
-package com.sse.service.cache;
+package com.sse.uid.service.cache;
 
-import com.sse.service.UidGenService;
-import com.sse.service.UidGenServiceBase;
+import com.sse.uid.service.UidGenService;
+import com.sse.uid.service.UidGenServiceBase;
 import lombok.Getter;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;

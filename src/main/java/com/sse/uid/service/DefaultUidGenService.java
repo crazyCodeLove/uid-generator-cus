@@ -1,4 +1,4 @@
-package com.sse.service;
+package com.sse.uid.service;
 
 import com.sse.exception.RTExceptionBase;
 import com.sse.exception.UidGenerateException;

@@ -1,7 +1,7 @@
-package com.sse.service;
+package com.sse.uid.service;
 
 import com.sse.exception.RTExceptionBase;
-import com.sse.service.cache.RingBuffer;
+import com.sse.uid.service.cache.RingBuffer;
 import com.sse.uid.UidGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

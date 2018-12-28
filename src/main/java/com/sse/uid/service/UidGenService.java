@@ -1,7 +1,7 @@
-package com.sse.service;
+package com.sse.uid.service;
 
 import com.sse.exception.RTExceptionBase;
-import com.sse.service.concurrent.ConcurrentUidGenService;
+import com.sse.uid.service.concurrent.ConcurrentUidGenService;
 import com.sse.uid.UidGenerator;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;

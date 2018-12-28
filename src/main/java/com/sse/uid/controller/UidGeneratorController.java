@@ -1,9 +1,9 @@
-package com.sse.controller;
+package com.sse.uid.controller;
 
-import com.sse.controller.param.BatchUidParam;
+import com.sse.uid.controller.param.BatchUidParam;
 import com.sse.model.RequestParamHolder;
 import com.sse.model.ResponseResultHolder;
-import com.sse.service.CachedUidGenService;
+import com.sse.uid.service.CachedUidGenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

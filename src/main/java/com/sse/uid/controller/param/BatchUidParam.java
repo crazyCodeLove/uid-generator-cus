@@ -1,4 +1,4 @@
-package com.sse.controller.param;
+package com.sse.uid.controller.param;
 
 import com.sse.exception.UidBatchSizeOverflowException;
 import com.sse.model.RequestParamBase;
