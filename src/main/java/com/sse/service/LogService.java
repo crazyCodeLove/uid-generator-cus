@@ -70,9 +70,7 @@ public class LogService {
         sb.append("; cost time(ms):");
         sb.append(System.currentTimeMillis() - requestStartTime);
         log.info(sb.toString());
-        if (sb.length() < 600) {
-            System.out.print(DateTimeUtil.formatByDateTimeMsPattern(new Date()) + " " + sb);
-        }
+        System.out.print(DateTimeUtil.formatByDateTimeMsPattern(new Date()) + " " + sb.substring(0, sb.length() < 600 ? sb.length() : 600));
     }
 
     @Async
