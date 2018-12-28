@@ -1,8 +1,10 @@
 package com.sse.config;
 
+import com.alibaba.fastjson.JSON;
 import com.sse.model.RequestParamBase;
 import com.sse.model.RequestParamHolder;
 import com.sse.service.LogService;
+import com.sse.util.IpUtil;
 import com.sse.util.ValidateUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -14,6 +16,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
 
@@ -44,7 +47,29 @@ public class LogParamAspect {
         String ruid = UUID.randomUUID().toString();
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = requestAttributes.getRequest();
-        logService.infoRequest(ruid, request, requestTime, point);
+        StringBuilder sb = new StringBuilder(1024);
+        /** 通用的请求数据 */
+        sb.append("request ID:");
+        sb.append(ruid);
+        sb.append("; url:");
+        sb.append(request.getRequestURL());
+        sb.append("; method:");
+        sb.append(request.getMethod());
+        sb.append("; query string:");
+        sb.append(request.getQueryString());
+        sb.append("; ip:");
+        sb.append(IpUtil.getRequestIpAddr(request));
+        sb.append("; params:");
+        sb.append(JSON.toJSONString(request.getParameterMap()));
+
+        /** 处理方法数据 */
+        sb.append("; callClass:");
+        sb.append(point.getTarget().getClass().getName());
+        sb.append("; callMethod:");
+        sb.append(point.getSignature().getName());
+        sb.append("; args:");
+        sb.append(Arrays.toString(point.getArgs()));
+        logService.infoRequest(sb, requestTime);
         Object result = null;
         try {
             /** 对参数进行统一校验 */

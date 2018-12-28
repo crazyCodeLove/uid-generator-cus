@@ -94,7 +94,7 @@ public class RingBuffer implements InitializingBean, DisposableBean {
 
     /**
      * 先填充再试着改变使用数，当并发量大时，可能会失败，并重新尝试。尝试次数最多为 3 次。
-     * 每隔 5分钟 填充一次
+     * 每隔 2分钟 填充一次
      */
     @Scheduled(cron = "0 0/2 * * * ?")
     public void scheduleFillSlots() {
@@ -102,8 +102,9 @@ public class RingBuffer implements InitializingBean, DisposableBean {
         int reTryCount;
         for (slotsIndex = 0; slotsIndex < SLOTS_COUNT; slotsIndex++) {
             reTryCount = 0;
-            if (!fillingSlots[slotsIndex].get() && startIndex[slotsIndex].get() <= slots[slotsIndex].length >> 1) {
+            if (!fillingSlots[slotsIndex].get() && startIndex[slotsIndex].get() > 100 && startIndex[slotsIndex].get() <= slots[slotsIndex].length >> 1) {
                 // 没有设置状态标志 fillingSlots[slotsIndex]，并且使用量不超过 1/2 。不改变 fillingSlots[slotsIndex] 状态
+//                System.out.println(String.format("slot:%3d start fill, use number is:%9d.",slotsIndex, startIndex[slotsIndex].get()));
                 int si;
                 int startFillIndex = 0;
                 do {
@@ -123,6 +124,13 @@ public class RingBuffer implements InitializingBean, DisposableBean {
                     fillingSlots[slotsIndex].compareAndSet(true, false);
                 }
             }
+        }
+    }
+
+    //    @Scheduled(cron = "0 0/1 * * * ?")
+    public void scheduleReportBuffer() {
+        for (int i = 0; i < SLOTS_COUNT; i++) {
+            System.out.println(String.format("slot:%3s, use number is:%9d.", i, startIndex[i].get()));
         }
     }
 

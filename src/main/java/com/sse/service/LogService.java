@@ -33,31 +33,9 @@ public class LogService {
     }
 
     @Async
-    public void infoRequest(String requestId, HttpServletRequest request, Date requestTime, ProceedingJoinPoint point) {
-        StringBuilder sb = new StringBuilder(1024);
-        /** 通用的请求数据 */
-        sb.append("request ID:");
-        sb.append(requestId);
-        sb.append("; url:");
-        sb.append(request.getRequestURL());
-        sb.append("; method:");
-        sb.append(request.getMethod());
-        sb.append("; query string:");
-        sb.append(request.getQueryString());
-        sb.append("; ip:");
-        sb.append(IpUtil.getRequestIpAddr(request));
-        sb.append("; params:");
-        sb.append(JSON.toJSONString(request.getParameterMap()));
-
-        /** 处理方法数据 */
-        sb.append("; callClass:");
-        sb.append(point.getTarget().getClass().getName());
-        sb.append("; callMethod:");
-        sb.append(point.getSignature().getName());
-        sb.append("; args:");
-        sb.append(Arrays.toString(point.getArgs()));
-        log.info(sb.toString());
-        System.out.println(DateTimeUtil.formatByDateTimeMsPattern(requestTime) + " " + sb);
+    public void infoRequest(StringBuilder requestInfo, Date requestTime) {
+        log.info(requestInfo.toString());
+        System.out.println(DateTimeUtil.formatByDateTimeMsPattern(requestTime) + " " + requestInfo);
     }
 
     @Async
