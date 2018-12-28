@@ -14,6 +14,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
+import java.util.UUID;
 
 /**
  * @author ZHAOPENGCHENG
@@ -38,10 +40,11 @@ public class LogParamAspect {
 
     @Around("controllerPoint()")
     public Object aroundController(ProceedingJoinPoint point) throws Throwable {
-        long startTime = System.currentTimeMillis();
+        Date requestTime = new Date();
+        String ruid = UUID.randomUUID().toString();
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = requestAttributes.getRequest();
-        logService.infoRequest(request, point);
+        logService.infoRequest(ruid, request, requestTime, point);
         Object result = null;
         try {
             /** 对参数进行统一校验 */
@@ -49,7 +52,7 @@ public class LogParamAspect {
             result = point.proceed();
         } finally {
             /** 记录响应 */
-            logService.infoResponse(request, result, startTime);
+            logService.infoResponse(ruid, result, new Date(), requestTime);
         }
         return result;
     }

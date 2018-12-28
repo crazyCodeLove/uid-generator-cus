@@ -96,7 +96,7 @@ public class RingBuffer implements InitializingBean, DisposableBean {
      * 先填充再试着改变使用数，当并发量大时，可能会失败，并重新尝试。尝试次数最多为 3 次。
      * 每隔 5分钟 填充一次
      */
-    @Scheduled(cron = "0 0/2 * * ?")
+    @Scheduled(cron = "0 0/2 * * * ?")
     public void scheduleFillSlots() {
         int slotsIndex;
         int reTryCount;

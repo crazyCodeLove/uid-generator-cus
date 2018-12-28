@@ -33,11 +33,11 @@ public class LogService {
     }
 
     @Async
-    public void infoRequest(HttpServletRequest request, ProceedingJoinPoint point) {
+    public void infoRequest(String requestId, HttpServletRequest request, Date requestTime, ProceedingJoinPoint point) {
         StringBuilder sb = new StringBuilder(1024);
         /** 通用的请求数据 */
-        sb.append("session ID:");
-        sb.append(request.getSession().getId());
+        sb.append("request ID:");
+        sb.append(requestId);
         sb.append("; url:");
         sb.append(request.getRequestURL());
         sb.append("; method:");
@@ -57,20 +57,20 @@ public class LogService {
         sb.append("; args:");
         sb.append(Arrays.toString(point.getArgs()));
         log.info(sb.toString());
-        System.out.println(new Date() + " " + sb);
+        System.out.println(DateTimeUtil.formatByDateTimeMsPattern(requestTime) + " " + sb);
     }
 
     @Async
-    public void infoResponse(HttpServletRequest request, Object result, long requestStartTime) {
+    public void infoResponse(String requestId, Object result, Date responseTime, Date requestTime) {
         StringBuilder sb = new StringBuilder(1024);
-        sb.append("session ID:");
-        sb.append(request.getSession().getId());
+        sb.append("request ID:");
+        sb.append(requestId);
+        sb.append("; cost time(ms):");
+        sb.append(responseTime.getTime() - requestTime.getTime());
         sb.append("; result:");
         sb.append(result);
-        sb.append("; cost time(ms):");
-        sb.append(System.currentTimeMillis() - requestStartTime);
         log.info(sb.toString());
-        System.out.print(DateTimeUtil.formatByDateTimeMsPattern(new Date()) + " " + sb.substring(0, sb.length() < 600 ? sb.length() : 600));
+        System.out.println(DateTimeUtil.formatByDateTimeMsPattern(responseTime) + " " + sb.substring(0, sb.length() < 400 ? sb.length() : 400));
     }
 
     @Async
