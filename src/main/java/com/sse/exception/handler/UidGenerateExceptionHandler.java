@@ -3,7 +3,8 @@ package com.sse.exception.handler;
 import com.sse.exception.ParamRTException;
 import com.sse.exception.RTExceptionBase;
 import com.sse.model.ResponseResultHolder;
-import lombok.extern.slf4j.Slf4j;
+import com.sse.service.LogService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -14,8 +15,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  */
 
 @RestControllerAdvice
-@Slf4j
 public class UidGenerateExceptionHandler {
+
+    @Autowired
+    private LogService logService;
 
     /**
      * 参数校验错误，错误码统一为：1000，错误原因放到 message 中
@@ -25,7 +28,7 @@ public class UidGenerateExceptionHandler {
      */
     @ExceptionHandler(value = ParamRTException.class)
     public ResponseResultHolder paramExceptionHandle(RTExceptionBase e) {
-        log.error(e.getMessage());
+        logService.info(e.getMessage());
         return ResponseResultHolder.builder().error(new ResponseResultHolder.ResponseError(1000, e.getMessage())).build();
     }
 
@@ -37,7 +40,7 @@ public class UidGenerateExceptionHandler {
      */
     @ExceptionHandler(value = RuntimeException.class)
     public ResponseResultHolder RuntimeExceptHandler(RuntimeException e) {
-        log.error(e.getMessage(), e);
+        logService.error(e.getMessage(), e);
         return ResponseResultHolder.builder().error(new ResponseResultHolder.ResponseError(500, "server internal error, engineers are rushing to repair ...")).build();
     }
 

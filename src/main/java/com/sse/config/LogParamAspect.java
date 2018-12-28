@@ -4,7 +4,6 @@ import com.sse.model.RequestParamBase;
 import com.sse.model.RequestParamHolder;
 import com.sse.service.LogService;
 import com.sse.util.ValidateUtil;
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -24,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 
 @Configuration
 @Aspect
-@Slf4j
 public class LogParamAspect {
 
     @Autowired
