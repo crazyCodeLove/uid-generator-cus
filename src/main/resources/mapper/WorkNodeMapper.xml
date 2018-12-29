@@ -14,7 +14,7 @@
 
     <insert id="addWorkNode" useGeneratedKeys="true" keyProperty="id"
             parameterType="com.sse.model.WorkNodeEntity">
-		INSERT INTO WORK_NODE
+		INSERT INTO work_node
 		(IP,
 		PORT,
 		WORK_NODE_ID,
