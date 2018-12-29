@@ -67,7 +67,7 @@
     </appender>
 
     <root level="info">
-        <appender-ref ref="console"/>
+        <!--<appender-ref ref="console"/>-->
         <appender-ref ref="fileInfoLogAsync"/>
         <appender-ref ref="fileErrorLogAsync"/>
     </root>
