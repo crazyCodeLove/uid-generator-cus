@@ -28,7 +28,7 @@ public class UidGenerateExceptionHandler {
      */
     @ExceptionHandler(value = ParamRTException.class)
     public ResponseResultHolder paramExceptionHandle(RTExceptionBase e) {
-        logService.info(e.getMessage());
+        logService.error(e.getMessage(), e);
         return ResponseResultHolder.builder().error(new ResponseResultHolder.ResponseError(1000, e.getMessage())).build();
     }
 
