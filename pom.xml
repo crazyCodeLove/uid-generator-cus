@@ -90,7 +90,19 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                    <encoding>UTF-8</encoding>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
